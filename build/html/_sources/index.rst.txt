@@ -37,3 +37,5 @@ Contents
    :caption: Contents:
 
    monitoring
+   peers
+   hsm

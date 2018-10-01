@@ -1,0 +1,258 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>The Tendermint P2P Layer - Improving operations &#8212; Certus One Knowledge Base  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="HSM for Signing" href="hsm.html" />
+    <link rel="prev" title="Monitoring" href="monitoring.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-tendermint-p2p-layer-improving-operations">
+<h1>The Tendermint P2P Layer - Improving operations<a class="headerlink" href="#the-tendermint-p2p-layer-improving-operations" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="intro">
+<h2>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h2>
+<p>The Tendermint P2P implementation is based on a relatively simple
+concept.</p>
+<div class="section" id="types-of-peers">
+<h3>Types of peers<a class="headerlink" href="#types-of-peers" title="Permalink to this headline">¶</a></h3>
+<p>Each node in the network is configured to dial a set of <code class="docutils literal notranslate"><span class="pre">seed</span></code> and
+<code class="docutils literal notranslate"><span class="pre">persistentPeers</span></code> when it is first started. Both of these parameters
+can be set in the config.</p>
+<dl class="docutils">
+<dt><strong>Persistent peers</strong></dt>
+<dd>The Tendermint node will try to maintain a permanent
+connection with this peer during its runtime. That also means that it
+will persistently try to redial the node if the connection fails. That
+is for example useful for the connection between Validator and Sentry
+nodes because they will immediately try to reconnect after a connection
+failure and there is no scenario where they could land in a
+unjustifiably long backoff or generally be removed from the peers
+addressbook which could cause unforseen issues in a Sentry-architecture.</dd>
+<dt><strong>Seeds</strong></dt>
+<dd>Seed nodes are only there to provide an up-to-date list of
+peers of the network. If a node is configured to run as a seed node it
+will actively search the network for new peers and store them in the
+addressbook. However it will not maintain active connections with the
+peers it queries. Connectinos from a seed node are meant to be
+short-lived in order to just query the other peers addressbook, learn
+about its new peers and then disconnect again. If you specifiy a
+seednode in the config of your node it will try to dial it on start to
+get an updated addressbook and get a list of peers on the network to
+bootstrap its connections.</dd>
+</dl>
+</div>
+<div class="section" id="addressbook">
+<h3>Addressbook<a class="headerlink" href="#addressbook" title="Permalink to this headline">¶</a></h3>
+<p>From the moment the node has acquired a list of peers on the network it
+will store them in a weighted <em>addressbook</em>.</p>
+<p>This addressbook stores all peers the client has ever learned about (and
+possibly connected to). When a connection to a peer fails however, this
+is marked in the addressbook and will lead to a backoff in a possible
+attempt to reconnect. If a peer connection fails for more than x times
+(where x is a constant hardcoded in Tendermint at the moment) the peer
+is marked as bad and removed from the addressbook.</p>
+</div>
+<div class="section" id="connection-types">
+<h3>Connection Types<a class="headerlink" href="#connection-types" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><strong>Inbound connection</strong></dt>
+<dd>Every connection that was initiated by another peer
+which contacted our node from the outside is called an inbound
+connection. The number of maximum inbound connections can be specified
+with <code class="docutils literal notranslate"><span class="pre">max_num_inbound_peers</span></code>. In order for another peer to create a
+connection to our node our P2P port (26656 by default) has to be
+publicly exposed.</dd>
+<dt><strong>Outbound connection</strong></dt>
+<dd>Every connection that was initiated by our peer
+(because of persistent peers, manual dialing or the PEX rector) is an
+outbound connection. In order to establish an outbound connection the
+P2P port does not have to be opened as long as outbound connections are
+allowed by firewall rules.</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="the-peer-reactor">
+<h2>The peer reactor<a class="headerlink" href="#the-peer-reactor" title="Permalink to this headline">¶</a></h2>
+<p>Depending on whether you have a normal or seed node the PEX (peer
+exchange) reactor will execute the following loop regularly.</p>
+<div class="section" id="normal-peer">
+<h3>Normal peer<a class="headerlink" href="#normal-peer" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="startup">
+<h4>Startup<a class="headerlink" href="#startup" title="Permalink to this headline">¶</a></h4>
+<p>The node will check its addressbook for valid peers to connect to and
+connect to all of the persistent peers specified. If the addresbook is
+empty it will try to connect to on of the specified nodes.</p>
+</div>
+<div class="section" id="loop">
+<h4>Loop<a class="headerlink" href="#loop" title="Permalink to this headline">¶</a></h4>
+<p>In the peer exchange routine the node will try to connect to new nodes
+from its addressbook until it has reached the <code class="docutils literal notranslate"><span class="pre">max_num_outbound_peers</span></code>
+(as of tendermint #6fad8eaf5a7d82000c3f2933ec61e0f3917d07cf).</p>
+<p>It will also query a random peer for its addressbook if the addressbook
+of itself is not yet “full” (currently 1000 entries).</p>
+</div>
+</div>
+<div class="section" id="seed-node">
+<h3>Seed node<a class="headerlink" href="#seed-node" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>Startup<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p><em>as with a normal node</em></p>
+</div>
+<div class="section" id="id2">
+<h4>Loop<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<p>The node will try to cleanup its connections by closing every connection
+that has been checked to be healthy.</p>
+<p>Then it will try to connect to all its known peers from the addressbook
+and ask them for their addressbook.</p>
+<p>This behaviour intends to get a picture of the network that contains
+almost every public node available in order to allow new nodes to easily
+bootstrap using an up-to-date addressbook.</p>
+</div>
+</div>
+</div>
+<div class="section" id="operation-notes">
+<h2>Operation Notes<a class="headerlink" href="#operation-notes" title="Permalink to this headline">¶</a></h2>
+<p>There are several possibilities of improving your operations that result
+from what you have learned above.</p>
+<div class="section" id="running-outbound-only-nodes">
+<h3>Running outbound only nodes<a class="headerlink" href="#running-outbound-only-nodes" title="Permalink to this headline">¶</a></h3>
+<p>In order to reduce your DDoS surface you might want to run outbound only
+nodes.</p>
+<p>The advantage of Outbound only nodes is that you only allow connections
+that are originating from your node on the Loadbalancing/Firewall layer
+(see Network Topology). That way your node is not publicly reachable
+from the internet except from the TCP sessions that you have established
+with your peers. This only allows DoS attacks over these TCP sessions
+which almost elimitates the whole surface as it is almost impossible to
+perform a L3 attack with such limitations in place. Depending on your
+way of selecting peers it can also reduce the surface for L7
+(application layer) attacks.</p>
+<p>Additional safety measures could be to announce a wrong IP using PEX to
+irritate all nodes except those you are connecting to. That way only the
+peers you have established connections with will know your true IP.</p>
+<p>However this also increases the importance of having uncompromised peers
+because other peers of potentially good actors on the network won’t be
+able to connect to you and if your maximum number of outbound peers is
+filled with compromised peers you will only see these nodes and no
+others as we have learned above. Such a compromise may allow an attacker
+to alter your image of the network rendring you unable to catch up for
+example.</p>
+<p>So it’s very important to (either):</p>
+<ul class="simple">
+<li>Set a high number of outgoing peers</li>
+<li>Add at least some trusted persistent peers</li>
+<li>Implement additional measures to either select peers or rotate peers on a regular basis</li>
+</ul>
+<p><strong>Warning</strong></p>
+<p>If your firewall is misconfigured or you are announcing a
+wrong public IP (e.g. your internal Docker IP) your node will be
+<em>outbound-only</em> unintentionally since no other nodes can connect from
+the outside (assuming you are not configured as persistent peer using
+your true IP). This can result in slow syncing and missed blocks due to
+delays in consensus message gossip if you don’t apply the above
+mentioned optimizations.</p>
+<p><strong>Notice</strong></p>
+<p>Outbound-only peers are meant as an additional measure to
+protect your validator from DDoS and similar attacks. However running
+only outbound peers can cause network partitioning, slow bootstrapping
+for new network participants and general network destabilization. Plase
+make sure that you run only a small portion of your sentries in an
+outbound-only configuration to ensure the overall quality of the
+network.</p>
+</div>
+<div class="section" id="running-full-duplex-nodes">
+<h3>Running “full-duplex” nodes<a class="headerlink" href="#running-full-duplex-nodes" title="Permalink to this headline">¶</a></h3>
+<p>Full-Duplex or inbound/outbound nodes are the default configuration for
+nodes. They allow both inbound connections to be established from the
+outside as well as outbound connections to be made.</p>
+<p>In order to run a full-duplex node your firewall needs to be opened for
+both in- and outbound traffic on the relevant port (26656 by default).</p>
+<p>Since the host can be reached from the public internet the risk for DDoS
+is higher. However this configuration allows new peers to establish
+connections with them and thereby benefits the overall network.</p>
+<p>Please keep in mind to set you maximum inbound peer number in the config
+appropriately to get a better view of the network.</p>
+</div>
+<div class="section" id="private-nodes">
+<h3>Private nodes<a class="headerlink" href="#private-nodes" title="Permalink to this headline">¶</a></h3>
+<p>Private nodes run on a VPN and allow only selected peers to establish
+connections with them. Such a configuration could be used for
+validator-validator private peerings.</p>
+<p>In order to not leak any information about the node, it can be run with
+PEX disabled and the peering with the other nodes hardcoded as
+<em>persistent peer</em>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="monitoring.html" title="previous chapter">Monitoring</a></li>
+      <li>Next: <a href="hsm.html" title="next chapter">HSM for Signing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Certus One GmbH.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/peers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

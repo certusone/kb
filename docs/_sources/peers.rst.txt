@@ -1,0 +1,203 @@
+The Tendermint P2P Layer - Improving operations
+===============================================
+
+Intro
+-----
+
+The Tendermint P2P implementation is based on a relatively simple
+concept.
+
+Types of peers
+~~~~~~~~~~~~~~
+
+Each node in the network is configured to dial a set of ``seed`` and
+``persistentPeers`` when it is first started. Both of these parameters
+can be set in the config.
+
+**Persistent peers** 
+    The Tendermint node will try to maintain a permanent
+    connection with this peer during its runtime. That also means that it
+    will persistently try to redial the node if the connection fails. That
+    is for example useful for the connection between Validator and Sentry
+    nodes because they will immediately try to reconnect after a connection
+    failure and there is no scenario where they could land in a
+    unjustifiably long backoff or generally be removed from the peers
+    addressbook which could cause unforseen issues in a Sentry-architecture.
+
+**Seeds** 
+    Seed nodes are only there to provide an up-to-date list of
+    peers of the network. If a node is configured to run as a seed node it
+    will actively search the network for new peers and store them in the
+    addressbook. However it will not maintain active connections with the
+    peers it queries. Connectinos from a seed node are meant to be
+    short-lived in order to just query the other peers addressbook, learn
+    about its new peers and then disconnect again. If you specifiy a
+    seednode in the config of your node it will try to dial it on start to
+    get an updated addressbook and get a list of peers on the network to
+    bootstrap its connections.
+
+Addressbook
+~~~~~~~~~~~
+
+From the moment the node has acquired a list of peers on the network it
+will store them in a weighted *addressbook*.
+
+This addressbook stores all peers the client has ever learned about (and
+possibly connected to). When a connection to a peer fails however, this
+is marked in the addressbook and will lead to a backoff in a possible
+attempt to reconnect. If a peer connection fails for more than x times
+(where x is a constant hardcoded in Tendermint at the moment) the peer
+is marked as bad and removed from the addressbook.
+
+Connection Types
+~~~~~~~~~~~~~~~~
+
+**Inbound connection**
+    Every connection that was initiated by another peer
+    which contacted our node from the outside is called an inbound
+    connection. The number of maximum inbound connections can be specified
+    with ``max_num_inbound_peers``. In order for another peer to create a
+    connection to our node our P2P port (26656 by default) has to be
+    publicly exposed.
+
+**Outbound connection**
+    Every connection that was initiated by our peer
+    (because of persistent peers, manual dialing or the PEX rector) is an
+    outbound connection. In order to establish an outbound connection the
+    P2P port does not have to be opened as long as outbound connections are
+    allowed by firewall rules.
+
+The peer reactor
+----------------
+
+Depending on whether you have a normal or seed node the PEX (peer
+exchange) reactor will execute the following loop regularly.
+
+Normal peer
+~~~~~~~~~~~
+
+Startup
+^^^^^^^
+
+The node will check its addressbook for valid peers to connect to and
+connect to all of the persistent peers specified. If the addresbook is
+empty it will try to connect to on of the specified nodes.
+
+Loop
+^^^^
+
+In the peer exchange routine the node will try to connect to new nodes
+from its addressbook until it has reached the ``max_num_outbound_peers``
+(as of tendermint #6fad8eaf5a7d82000c3f2933ec61e0f3917d07cf).
+
+It will also query a random peer for its addressbook if the addressbook
+of itself is not yet “full” (currently 1000 entries).
+
+Seed node
+~~~~~~~~~
+
+Startup
+^^^^^^^
+
+*as with a normal node*
+
+Loop
+^^^^
+
+The node will try to cleanup its connections by closing every connection
+that has been checked to be healthy.
+
+Then it will try to connect to all its known peers from the addressbook
+and ask them for their addressbook.
+
+This behaviour intends to get a picture of the network that contains
+almost every public node available in order to allow new nodes to easily
+bootstrap using an up-to-date addressbook.
+
+Operation Notes
+---------------
+
+There are several possibilities of improving your operations that result
+from what you have learned above.
+
+Running outbound only nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to reduce your DDoS surface you might want to run outbound only
+nodes.
+
+The advantage of Outbound only nodes is that you only allow connections
+that are originating from your node on the Loadbalancing/Firewall layer
+(see Network Topology). That way your node is not publicly reachable
+from the internet except from the TCP sessions that you have established
+with your peers. This only allows DoS attacks over these TCP sessions
+which almost elimitates the whole surface as it is almost impossible to
+perform a L3 attack with such limitations in place. Depending on your
+way of selecting peers it can also reduce the surface for L7
+(application layer) attacks.
+
+Additional safety measures could be to announce a wrong IP using PEX to
+irritate all nodes except those you are connecting to. That way only the
+peers you have established connections with will know your true IP.
+
+However this also increases the importance of having uncompromised peers
+because other peers of potentially good actors on the network won’t be
+able to connect to you and if your maximum number of outbound peers is
+filled with compromised peers you will only see these nodes and no
+others as we have learned above. Such a compromise may allow an attacker
+to alter your image of the network rendring you unable to catch up for
+example.
+
+So it’s very important to (either): 
+
+- Set a high number of outgoing peers 
+- Add at least some trusted persistent peers 
+- Implement additional measures to either select peers or rotate peers on a regular basis
+
+**Warning**
+
+If your firewall is misconfigured or you are announcing a
+wrong public IP (e.g. your internal Docker IP) your node will be
+*outbound-only* unintentionally since no other nodes can connect from
+the outside (assuming you are not configured as persistent peer using
+your true IP). This can result in slow syncing and missed blocks due to
+delays in consensus message gossip if you don’t apply the above
+mentioned optimizations.
+
+**Notice**
+
+Outbound-only peers are meant as an additional measure to
+protect your validator from DDoS and similar attacks. However running
+only outbound peers can cause network partitioning, slow bootstrapping
+for new network participants and general network destabilization. Plase
+make sure that you run only a small portion of your sentries in an
+outbound-only configuration to ensure the overall quality of the
+network.
+
+Running “full-duplex” nodes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Full-Duplex or inbound/outbound nodes are the default configuration for
+nodes. They allow both inbound connections to be established from the
+outside as well as outbound connections to be made.
+
+In order to run a full-duplex node your firewall needs to be opened for
+both in- and outbound traffic on the relevant port (26656 by default).
+
+Since the host can be reached from the public internet the risk for DDoS
+is higher. However this configuration allows new peers to establish
+connections with them and thereby benefits the overall network.
+
+Please keep in mind to set you maximum inbound peer number in the config
+appropriately to get a better view of the network.
+
+Private nodes
+~~~~~~~~~~~~~
+
+Private nodes run on a VPN and allow only selected peers to establish
+connections with them. Such a configuration could be used for
+validator-validator private peerings.
+
+In order to not leak any information about the node, it can be run with
+PEX disabled and the peering with the other nodes hardcoded as
+*persistent peer*.
