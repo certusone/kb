@@ -94,7 +94,7 @@ mitigate the attack.</p>
 <h2>HSM implementations<a class="headerlink" href="#hsm-implementations" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="kms-by-tendermint">
 <h3>KMS by Tendermint<a class="headerlink" href="#kms-by-tendermint" title="Permalink to this headline">¶</a></h3>
-<p>KMS (Key Management System) is a reference implementation of pluggable signing modules in a separated software component curated by Tendermint.</p>
+<p>KMS (Key Management Service) is a reference implementation of pluggable signing modules in a separated software component curated by Tendermint.</p>
 <img alt="_images/kms.svg" src="_images/kms.svg" /><p>It uses a separate software component to take care of the signing and implement double signing protection (like keeping track of the last signed messages).</p>
 <p>This component communicates with the Tendermint node using a encrypted channel to prevent <a class="reference internal" href="#mitm">MITM</a> attacks.</p>
 <p>Signers are implemented as plugins which makes is very extendible and flexible. Examples of implemented signers include the YubiHSM2, Ledger Nano S and the

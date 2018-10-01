@@ -87,7 +87,7 @@ HSM implementations
 KMS by Tendermint
 ~~~~~~~~~~~~~~~~~
 
-KMS (Key Management System) is a reference implementation of pluggable signing modules in a separated software component curated by Tendermint.
+KMS (Key Management Service) is a reference implementation of pluggable signing modules in a separated software component curated by Tendermint.
 
 .. image:: kms.svg
 
