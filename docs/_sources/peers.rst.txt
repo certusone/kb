@@ -201,3 +201,80 @@ validator-validator private peerings.
 In order to not leak any information about the node, it can be run with
 PEX disabled and the peering with the other nodes hardcoded as
 *persistent peer*.
+
+Sentry-Auto-Scaling
+-------------------
+
+*Gotcha* ... Sentry-Auto-Scaling isn't actually the best solution to protect yourself against DDoS attacks.
+
+Even though it might appear obvious that *Sentry-Auto-Scaling* is *the* solution
+to mitigate DDoS attacks it is actually a quite **weak** and **expensive** countermeasure and here is why:
+
+Let's first take a look at potential DoS vectors of your validator:
+
+**L7 - Application Layer**:
+    Vulnerabilities in Tendermint or the Cosmos SDK can allow an attacker to slow or take your
+    nodes down with little effort and bandwidth. Traditional DDoS solutions will mostly not be
+    able to mitigate this.
+
+**L2/3 - Protocol Layer**:
+    Attacks with a high amount of bandwidth / high amounts of sockets which are aiming to saturate 
+    the network interface of your hosts and take them down in this way.
+
+So let's see which of them could be handled by Auto-Scaling:
+
+-------
+
+**L7 Attacks** cannot be mitigated by creating more nodes. Since there are no high resource requirements on the attacker side
+they can just continue attacking the new node thereby taking it down as well which would trigger the creation of a new node
+in an auto-scaling environment. In the end that leads to extremely expensive scaling and can quickly exhaust/explode a validator's
+budget on a cloud platform. To prevent this one would have to exclude "is-up" / latency as an auto-scaling metric.
+
+So what about **L2/3 attacks**? 
+
+If your Sentry nodes are getting attacked by massive amounts of bandwidth they will suffer and once the network
+interface or uplink is saturated (which is provider/hardware specific) it will start to drop packets which renders your host unreachable
+or simply "down".
+
+That way an attacker can take your sentries down and prevent you from participating in Consensus. Which you want to avoid.
+
+Auto-Scaling of sentries *can* help in that situation as you would just spawn more Sentries until the DDoS bandwidth of your attacker is depleted.
+
+The issue is that this requires a lot of resources on your side. Spawning up nodes to match the bandwidth of the attacker can be quite expensive,
+especially over longer periods of time. While you might remain online during the attack, the attacker is still in a cost-wise "hijack" scenario and could
+potentially blackmail you.
+
+Also in order to quickly scale up Cosmos nodes you need to have snapshotting of the blockchain data in place because it would take very long for it to
+sync with the network. That is another point of failure in case of such an attack especially considering the growing size of the blockchain.
+
+-------------
+
+Considering this added complexity and cost-factor let's look at alternatives:
+
+One of the very obvious alternatives and additional security measures is **outbound-only nodes**.
+These are configured to not accept any incoming connections on the *Firewall/Load balancer* layer (e.g. GCP Global LB or AWS Network ELB).
+These mostly distributed layers can handle bandwidths in excess of most realistic DDoS attacks in a single AZ so you are not limited by your sentry's interface.
+Additionally chances are that your attacker does not even know the IP address of the node since it only initiates a limited amount of outbound connections.
+This can further be stripped down to a selected set of peers to further increase security which ultimately leads us to *private peers*.
+
+With private peers in place you have got nodes that are not publicly known and in the best case (with potential direct *in-cloud peerings*) expose almost no surface
+for DDoS attacks.
+
+    So at this point we already almost eliminated the attack surface for potential DDoS attacks.
+
+If however still an attacker should be able to attack all of these targets the before-mentioned Loadbalancers which do TCP-termination will
+first increase the resource requirements for an attack since UDP can be blocked and this way attackers would have to establish stateful connections.
+
+Additionally there are plenty of established vendors providing DDoS protection solutions (some hosters even by default).
+With such protection in place the risk for DDoS attacks can be reduced to a minimum.
+
+So to sum it up we will implement the following protection measurements:
+
+- Outbound-only sentrys
+- Private Sentrys
+- Global Load Balancers of cloud providers to terminate TCP and filter some DDoS traffic (like UDP)
+- Additional DDoS protection services and hardware
+
+of which many can be combined to increase security.
+
+In the end with such a level of protection there is almost no need for a complex (error-prone) and expensive auto-scaling solution.
