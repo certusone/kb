@@ -39,3 +39,5 @@ Contents
    monitoring
    peers
    hsm
+   testing
+   building
