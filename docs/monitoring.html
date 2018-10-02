@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Monitoring &#8212; Certus One Knowledge Base  documentation</title>
+    <title>Monitoring, Alerting and Instrumentation &#8212; Certus One Knowledge Base  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -23,7 +31,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -31,11 +40,11 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="monitoring">
-<h1>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="monitoring-alerting-and-instrumentation">
+<h1>Monitoring, Alerting and Instrumentation<a class="headerlink" href="#monitoring-alerting-and-instrumentation" title="Permalink to this headline">¶</a></h1>
 <p>Monitoring is an integral part of providing highly available services. By monitoring, we mean:</p>
 <ol class="arabic">
-<li><p class="first">Instrumenting your applications and servers and collecting as many useful <strong>metrics</strong> as
+<li><p class="first"><strong>Instrumenting</strong> your applications and servers and collecting as many useful <strong>metrics</strong> as
 possible. Having detailed metrics is invaluable for debugging, incident response and
 performance analysis (observability - you can’t improve what you can’t measure).</p>
 <blockquote>
@@ -86,20 +95,21 @@ even fixed thresholds are much more specific.</td></tr>
 </tbody>
 </table>
 <div class="section" id="symptoms-based-alerting">
-<h2>Symptoms-based alerting<a class="headerlink" href="#symptoms-based-alerting" title="Permalink to this headline">¶</a></h2>
+<h2>Symptoms-Based Alerting<a class="headerlink" href="#symptoms-based-alerting" title="Permalink to this headline">¶</a></h2>
 <p>For on-call alerts, you want to strictly limit the amount of pages you send out in order to
 maintain a high signal-to-noise ratio. Every page interrupts the on-call engineer’s workflow, and in
 the worst case, it wakes him up at night.</p>
-<p>In order to do this, you want to alert on symptoms <em>as far up the stack as possible</em>. Instead of
-having an alert that says “one of our MySQL database servers is down”, you want “the website error
-rate went up”, which catches a huge number of potential issues, whereas a redundant database server
-going down may not have any impact whatsoever.</p>
+<p>In order to do this, you want to alert on symptoms <em>as far up the stack as possible</em>, rather than
+causes. Instead of having an alert that says “one of our MySQL database servers is down”, you
+want “the website error rate went up”, which catches a huge number of potential issues, whereas
+a redundant database server going down may not have any impact whatsoever.</p>
 <p>Once you’ve been woken up, you can then use your detailed metrics and dashboards to narrow down
-the cause of the outage, but there’s no point on alerting on them.</p>
-<p>Exceptions to this are cases where you can reliably extrapolate - like “this disk <em>will</em> up in
-30 minutes, and it <em>will</em> take down our service unless it’s fixed.</p>
+the cause of the outage, but there’s no point on alerting on them unless they impact service
+quality.</p>
+<p>Exceptions to this are cases where you can reliably extrapolate that something is going to break
+soon - like “this disk <em>will</em> up in 30 minutes, and it <em>will</em> take down our service unless it’s fixed.</p>
 <div class="section" id="low-severity-alerts">
-<h3>Low-severity alerts<a class="headerlink" href="#low-severity-alerts" title="Permalink to this headline">¶</a></h3>
+<h3>Low-Severity Alerts<a class="headerlink" href="#low-severity-alerts" title="Permalink to this headline">¶</a></h3>
 <p>There are many conditions that need to be taken of, just not <em>immediately</em>. Your redundant database
 server went down and nobody got paged - great! But, you still need someone to fix that database
 server, or clean up the log partition that will soon fill up, or refill your coffee maker (you’re
@@ -109,6 +119,166 @@ up, but still ensure that the issue is resolved. We recommend a channel in your 
 messaging application, <em>plus</em> a dashboard which shows outstanding alerts (the dashboard is really
 important, since it ensures that alerts are acted upon - it’s basically a to-do list).</p>
 </div>
+</div>
+<div class="section" id="what-to-monitor">
+<h2>What To Monitor<a class="headerlink" href="#what-to-monitor" title="Permalink to this headline">¶</a></h2>
+<p>There are two commonly used methodologies to determine a baseline of what to monitor - <em>USE</em>
+(utilization, saturation and errors) and <em>RED</em> (rate, errors and durations).</p>
+<p>USE is a general-purpose resource-centric view. Examples of resources are CPUs, disks and
+some software services that are effectively resources.</p>
+<dl class="docutils">
+<dt>Utilization</dt>
+<dd>An average over a time interval of how much time your resource is busy vs. idle.
+A common example are CPU utilization values (90% busy), memory usage.</dd>
+<dt>Saturation</dt>
+<dd>How much extra work is queued up/waiting. Common examples are the CPU load (processor run
+queue length), worker queue sizes, network interface queues or memory swapping.</dd>
+<dt>Errors</dt>
+<dd>Accumulated number of error events like network interface error counters, queue overflows,
+application exceptions and restart counters.</dd>
+</dl>
+<p>RED is a higher-level service-centric view for request-based services like APIs and webservers.</p>
+<dl class="docutils">
+<dt>Rate</dt>
+<dd>The rate of work being completed, like requests per second for APIs and webservers,
+packets per second for network devices, or concurrent sessions for push notification servers.</dd>
+<dt>Errors</dt>
+<dd>Number of requests that failed.</dd>
+<dt>Durations</dt>
+<dd>How long single requests take to complete.</dd>
+</dl>
+<p>Google’s SRE book has a slightly different approach (“The Four Golden Signals”) which combines
+both - latency (durations), traffic (rate), errors and saturation (saturation being more broadly
+defined as the utilization of a system’s bottleneck/constraint).</p>
+<p>Both methodologies complement each other and provide a comprehensive view of your applications
+performance. Take them as suggestions, not gospel - they don’t always fit. Make sure to
+understand how your application behaves and define custom metrics as you see fit.</p>
+<p>Here are examples of metrics we collect for our Cosmos validators:</p>
+<ul class="simple">
+<li>Network latencies between our different sites running our active-active validators
+(essential for troubleshooting high block signing latencies, since latency sets the
+lower bound for our internal consensus mechanism).</li>
+<li>BGP path distance and ASN-vs-distance metrics between our different sites
+(unexpected changes in BGP paths can explain changes in latency and need to be investigated,
+since they can increase the risk of network partitions).</li>
+<li>Metrics exposed by Tendermint<ul>
+<li>Block height (<code class="docutils literal"><span class="pre">consensus_height</span></code>)</li>
+<li>Total online weight in the network (<code class="docutils literal"><span class="pre">consensus_validators_power</span></code>)</li>
+<li>Missing validators (<code class="docutils literal"><span class="pre">consensus_missing_validators</span></code>)</li>
+<li>Byzantine validators and weight
+(<code class="docutils literal"><span class="pre">consensus_byzantine_validators</span></code> and <code class="docutils literal"><span class="pre">consensus_byzantine_validators_power</span></code>)</li>
+<li>Last block size (<code class="docutils literal"><span class="pre">consensus_block_size_bytes</span></code>)</li>
+<li>Current consensus round (<code class="docutils literal"><span class="pre">consensus_rounds</span></code>)</li>
+<li>Number of peers (<code class="docutils literal"><span class="pre">p2p_peers</span></code>)</li>
+</ul>
+</li>
+<li><a class="reference external" href="https://github.com/certusone/chain_exporter">chain_exporter</a> metrics<ul>
+<li>Blocks that our validators missed (miss_infos table)</li>
+<li>Recent proposals in the network (proposals table)</li>
+<li>Our validator’s outbound peers (peer_infos table)</li>
+</ul>
+</li>
+<li>Golang process statistics (automatically generated by the Go Prometheus exporter)<ul>
+<li>Process memory (<code class="docutils literal"><span class="pre">process_resident_memory_bytes</span></code>)</li>
+<li>Go stack metrics (<code class="docutils literal"><span class="pre">go_memstats_alloc_bytes</span></code>)</li>
+<li>Open file descriptors (<code class="docutils literal"><span class="pre">process_open_fds</span></code> - fds are a limited resource!)</li>
+<li>Number of goroutines (<code class="docutils literal"><span class="pre">go_goroutines</span></code> - Goroutines aren’t OS threads, they’re limited by
+available memory and garbage collection costs; the metric is particularly important to spot
+Goroutine leaks which lead to high memory usage)</li>
+<li>Garbage collector quantiles (<code class="docutils literal"><span class="pre">go_gc_duration_seconds</span></code>)</li>
+</ul>
+</li>
+<li><a class="reference external" href="https://github.com/prometheus/node_exporter">node_exporter</a> metrics</li>
+</ul>
+<p>Of course, not all of them have alerts, but they’re displayed in our operational dashboards
+and are the first step in troubleshooting.</p>
+<p>Our <a class="reference external" href="https://github.com/certusone/testnet_deploy">testnet_deploy</a> GitHub repo includes example dashboards for these metrics.</p>
+</div>
+<div class="section" id="what-to-alert">
+<h2>What To Alert<a class="headerlink" href="#what-to-alert" title="Permalink to this headline">¶</a></h2>
+<p>All alerts should be, fundamentally, rooted in your business goals. If you’re hosting an application,
+you usually have customers, and your customers expect a certain service level. The service level can
+be expressed in terms of application metrics - so-called <strong>service level indicators</strong>. You then define
+<strong>service level objectives</strong> (SLOs) - the bar you set for yourself - and probably
+<strong>service level agreements</strong> (SLAs) with your customers, usually lower than your SLOs.</p>
+<p>Chapter <a class="reference external" href="https://landing.google.com/sre/book/chapters/service-level-objectives.html">4</a> of Google’s SRE book has a great writeup on how to define your service levels - we
+recommend you read it (along with the rest of that book).</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+<div class="section" id="how-to-monitor">
+<h2>How to Monitor<a class="headerlink" href="#how-to-monitor" title="Permalink to this headline">¶</a></h2>
+<p>The only mature open-source implementation of metrics-based alerting is the <a class="reference external" href="https://prometheus.io/">Prometheus</a> project.
+It serves as metrics collector, time-series database and alerting system.</p>
+<p>While Prometheus has a simple web UI for ad-hoc queries and debugging, <a class="reference external" href="https://grafana.com/">Grafana</a> (which includes a
+Prometheus data source out of the box) is commonly used for complex dashboards.</p>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+<div class="section" id="counters-vs-gauges">
+<h3>Counters vs gauges<a class="headerlink" href="#counters-vs-gauges" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+<div class="section" id="quantiles">
+<h3>Quantiles<a class="headerlink" href="#quantiles" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-3">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+<div class="section" id="push-vs-pull">
+<h3>Push vs Pull<a class="headerlink" href="#push-vs-pull" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-4">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+</div>
+<div class="section" id="how-to-alert">
+<h2>How to Alert<a class="headerlink" href="#how-to-alert" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-todo admonition" id="index-5">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+<div class="section" id="events">
+<h2>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h2>
+<div class="admonition-todo admonition" id="index-6">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+<div class="section" id="further-reading">
+<h2>Further Reading<a class="headerlink" href="#further-reading" title="Permalink to this headline">¶</a></h2>
+<p>Recommended reads on this topic:</p>
+<ul>
+<li><p class="first"><em>Site Reliability Engineering</em> by Google (Betsy Beyer, Chris Jones, Jennifer Petoff and Niall
+Richard Murphy). The systems reliability engineering bible. Its a great read in its entirety, but
+as far as monitoring and alerting are concerned, chapters <a class="reference external" href="https://landing.google.com/sre/book/chapters/monitoring-distributed-systems.html">6</a> and <a class="reference external" href="https://landing.google.com/sre/book/chapters/practical-alerting.html">10</a> are must-reads.</p>
+<p><a class="reference external" href="https://landing.google.com/sre/book.html">Read it online</a>,
+<a class="reference external" href="https://www.amazon.com/Site-Reliability-Engineering-Production-Systems/dp/149192912X">Amazon</a></p>
+</li>
+</ul>
+<ul>
+<li><p class="first"><em>My Philosophy on Alerting</em> by Rob Ewaschuk. Precursor to Google’s SRE book and still a good
+and succinct read on its own.</p>
+<p><a class="reference external" href="https://docs.google.com/document/d/199PqyG3UsyXlwieHaqbGiWVa8eMWi8zzAn0YfcApr8Q/edit">Read it online</a></p>
+</li>
+<li><p class="first"><em>The USE Method</em>, article by Brendan Gregg. Brendan Gregg is a well-known (if not <em>the</em>) expert
+on performance analytics. This article introduces the USE method.</p>
+<p><a class="reference external" href="http://www.brendangregg.com/usemethod.html">Read it online</a></p>
+</li>
+<li><p class="first"><em>Systems Performance</em> by Brendan Gregg. The reference book for systems performance analysis
+and optimization, with a focus on UNIX (Linux, Solaris) performance.</p>
+<p><a class="reference external" href="https://www.amazon.com/gp/product/0133390098?ie=UTF8&amp;tag=deirdrestraug-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=0133390098">Amazon</a> (affiliate link taken from Brendan’s website)</p>
+</li>
+</ul>
 </div>
 </div>
 
@@ -128,14 +298,12 @@ important, since it ensures that alerts are acted upon - it’s basically a to-d
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -146,7 +314,7 @@ important, since it ensures that alerts are acted upon - it’s basically a to-d
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
