@@ -15,9 +15,9 @@ patch the programs by maintaining a mirror/fork.
 Performing reproducible builds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO: Leo
+.. todo :: Explain why reproducible builds are important and add a simple guide to use the buildscripts
 
-Here you can find example build scripts for reproducible Cosmos builds.
+Here you can find example build scripts for reproducible Cosmos builds: `Certus Build scripts`_
 
 Maintaining a mirror/fork
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,3 +44,4 @@ dep lock which would add the necessity to maintain this change on the Cosmos pro
 
 .. [#puush] The puush hack for example https://imgur.com/qqjokYm
 .. _`How to maintain a fork`: https://rhonabwy.com/2016/04/04/how-to-maintain-a-git-remote-fork/
+.. _`Certus Build scripts`: https://github.com/certusone/buildscripts
