@@ -40,7 +40,7 @@ How to deploy
 
 The source code for the deployment can be found here: `Testnet Github`_
 
-We have also prepared a video with setup instructions.
+We have also prepared a video with setup instructions which will also guide you through the features of the setup.
 
 Before watching you have to setup a Openshift Origin cluster using OpenShift's documentation or our README.
 
