@@ -49,3 +49,4 @@ Contents
    testing
    building
    business_continuity
+   validator_ha
