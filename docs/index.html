@@ -15,7 +15,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Monitoring" href="monitoring.html" />
+    <link rel="next" title="Monitoring, Alerting and Instrumentation" href="monitoring.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -32,28 +32,44 @@
             
   <div class="section" id="validator-operations-guide">
 <h1>Validator Operations Guide<a class="headerlink" href="#validator-operations-guide" title="Permalink to this headline">¶</a></h1>
-<p>This guide is a living document which details a set of best practices for
-running a validator service, as implemented by Certus One. Running a validator
-puts a much greater emphasis on technical correctness, sound systems architecture,
-security, and overall operational excellence.</p>
-<p>The aim of this document is to provide a baseline for validator operation, both to
-make it easier for new validators to get started, and to provide input to other
-teams. We believe that collaboration and openness strongly benefits the overall
-ecosystem - the more well-run validators there are, the more resilient will the
-network be.</p>
-<p>While this document’s focus is running a <a class="reference external" href="https://cosmos.network">Cosmos</a> validator, but most of its
-content is applicable to operating any highly available, distributed service.</p>
-<p>The document’s source code is available on <a class="reference external" href="https://github.com/certusone/kb">GitHub</a>.
-Contributions are greatly appreciated.</p>
-<p>While it’s hard to provide an implementation that fits all use cases, we usually
-provide reference implementations which implement our guidelines.</p>
+<p>Running a proof-of-stake validator puts a much greater emphasis on technical correctness, sound
+systems architecture, security, and overall operational excellence than most distributed systems
+than most applications. In a proof-of-stake cryptocurrency, operational skills take the place of
+raw computational power. This means that the design process, documentation and knowledge sharing
+are particularly important for validator operations.</p>
+<p>This guide is a living document which details a set of best practices for running a validator
+service, as implemented by Certus One, as well as technical background to help you design your
+own validator architecture.</p>
+<p>The aim of this document is to provide a baseline for validator operation, both to make it easier
+for new validators to get started, and to provide input to other teams. We believe that
+collaboration and openness strongly benefits the overall ecosystem - the more well-run
+validators there are, the more resilient will the network be.</p>
+<p>While this document’s focus is running a Tendermint/Cosmos validator, but much of its content is
+applicable to operating any highly available, distributed service.</p>
+<p>While it’s hard to provide an implementation that fits all use cases, we try to provide
+reference implementations which implement our guidelines.</p>
+<p>This guide assumes practical Linux systems administration experience and at least basic knowledge
+of the Tendermint and Cosmos architecture.</p>
+<p>The document’s source code is available <a class="reference external" href="https://github.com/certusone/kb">on GitHub</a>.
+Contributions and bug reports/feedback are greatly appreciated (feel free to use the
+GitHub issues for discussion as well as bug reports).</p>
 <div class="section" id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="monitoring.html#symptoms-based-alerting">Symptoms-based alerting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#symptoms-based-alerting">Symptoms-Based Alerting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#what-to-monitor">What To Monitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#what-to-alert">What To Alert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#how-to-monitor">How to Monitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#how-to-alert">How to Alert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#events">Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="monitoring.html#further-reading">Further Reading</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="business_continuity.html#shareholder-agreements">Shareholder agreements</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">The Tendermint P2P Layer - Improving operations</a><ul>
@@ -93,7 +109,7 @@ provide reference implementations which implement our guidelines.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="monitoring.html" title="next chapter">Monitoring</a></li>
+      <li>Next: <a href="monitoring.html" title="next chapter">Monitoring, Alerting and Instrumentation</a></li>
   </ul></li>
 </ul>
 </div>

@@ -1,0 +1,27 @@
+===========================
+Validator High-Availability
+===========================
+
+Tendermint is a globally consistent, byzantine-fault tolerant consensus-based replicated
+state machine - the gold standard in distributed systems.
+
+A single validator, however, is not highly available. It doesn't need to be - the network
+
+However, if you're a validator operator and not a net
+
+Running a Tendermint validator is - like any distributed system - a delicate balance between
+ensuring availability and consistency.
+
+
+Single Node
+===========
+
+Runn
+
+Active-Standby Failover
+=======================
+
+
+Further Reading
+===============
+
