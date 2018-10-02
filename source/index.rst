@@ -44,6 +44,7 @@ Contents
 
    monitoring
    peers
+   key_management
    hsm
    testing
    building
