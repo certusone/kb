@@ -44,9 +44,9 @@ Contents
 
    monitoring
    peers
-   key_management
+   validator_ha
    hsm
+   key_management
    testing
    building
    business_continuity
-   validator_ha

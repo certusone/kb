@@ -81,18 +81,24 @@ GitHub issues for discussion as well as bug reports).</p>
 <li class="toctree-l2"><a class="reference internal" href="peers.html#intro">Intro</a></li>
 <li class="toctree-l2"><a class="reference internal" href="peers.html#the-peer-reactor">The peer reactor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="peers.html#operation-notes">Operation Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="peers.html#the-sentry-architecture">The Sentry architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="peers.html#the-sentry-architecture">The Sentry architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="key_management.html#handling-of-the-account-key">Handling of the Account Key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="validator_ha.html#single-node-validator">Single Node Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator_ha.html#active-standby-validator">Active-Standby Validator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validator_ha.html#active-active-validator">Active-Active Validator</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hsm.html#why-use-a-hsm">Why use a HSM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hsm.html#hsm-implementations">HSM implementations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hsm.html#hsm-hardware">HSM hardware</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="key_management.html#handling-of-the-account-key">Handling of the Account Key</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a><ul>
@@ -107,12 +113,6 @@ GitHub issues for discussion as well as bug reports).</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="business_continuity.html#shareholder-agreements">Shareholder agreements</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="validator_ha.html#single-node-validator">Single Node Validator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validator_ha.html#active-standby-validator">Active-Standby Validator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validator_ha.html#active-active-validator">Active-Active Validator</a></li>
 </ul>
 </li>
 </ul>
@@ -133,14 +133,12 @@ GitHub issues for discussion as well as bug reports).</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="peers.html#the-sentry-architecture">The Sentry architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 </ul>
 
 <div class="relations">

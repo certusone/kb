@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Key Management" href="key_management.html" />
+    <link rel="next" title="Validator High-Availability" href="validator_ha.html" />
     <link rel="prev" title="Monitoring, Alerting and Instrumentation" href="monitoring.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -231,26 +231,33 @@ PEX disabled and the peering with the other nodes hardcoded as
 <em>persistent peer</em>.</p>
 </div>
 </div>
-</div>
 <div class="section" id="the-sentry-architecture">
-<h1>The Sentry architecture<a class="headerlink" href="#the-sentry-architecture" title="Permalink to this headline">¶</a></h1>
+<h2>The Sentry architecture<a class="headerlink" href="#the-sentry-architecture" title="Permalink to this headline">¶</a></h2>
 <p>In order to deploy multiple different kinds of nodes, as described above, in our network and
 combine their strengths we need an additional layer besides our single validator node (or
 multiple validator nodes).</p>
 <p>In order to effectively mitigate DDoS attacks we also don’t want to publicly expose our validator
 nodes (IPs) to the internet.</p>
-<p>This is implemented in an architecture developed by the Tendermint/Cosmos team called <em>Sentry node architecture</em>.</p>
-<p>While the validators reside in a Virtual Private Network (like it’s e.g. offered by many cloud providers) or actual private network that is disconnected from the internet
-our Sentries basically build a <em>proxy</em> layer between this network and the public internet / cosmos network.</p>
+<p>This is implemented in an architecture developed by the Tendermint/Cosmos team called
+<em>Sentry node architecture</em>.</p>
+<p>While the validators reside in a Virtual Private Network (like it’s e.g. offered by many cloud
+providers) or actual private network that is disconnected from the internet our Sentries
+basically build a <em>proxy</em> layer between this network and the public internet / cosmos network.</p>
 <p><em>Sentry</em> nodes are full cosmos nodes whose only task it is to relay messages and blocks to the validator nodes.</p>
-<p>This is done by assigning the Sentry nodes both a public and private interface and hardcoding the validator nodes as persistent peers.
-The PEX reactor is limited in a way to not broadcast the validator nodes to the other public peers in the network.</p>
-<p>As a result no network participant will ever have a direct connection with one of our validator nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a shielding layer and are
-not limited in their number since they only act as a proxy and have no special <em>stateful</em> task like signing. New nodes can be added and removed at any time as long as a minimum amount is kept online.</p>
+<dl class="docutils">
+<dt>This is done by assigning the Sentry nodes both a public and private interface and hardcoding the</dt>
+<dd>validator nodes as persistent peers. The PEX reactor is limited in a way to not broadcast the</dd>
+</dl>
+<p>validator nodes to the other public peers in the network.</p>
+<p>As a result no network participant will ever have a direct connection with one of our validator
+nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a
+shielding layer and are not limited in their number since they only act as a proxy and have no
+special <a href="#id3"><span class="problematic" id="id4">*</span></a>stateful*task like signing. New nodes can be added and removed at any time as long as a
+minimum amount is kept online.</p>
 <p>To learn more about the Sentry architecture and how to configure your nodes accordingly look at the <a class="reference external" href="https://cosmos.network/docs/validators/security.html#sentry-nodes-ddos-protection">Cosmos Docs</a>.</p>
 </div>
 <div class="section" id="sentry-auto-scaling">
-<h1>Sentry-Auto-Scaling<a class="headerlink" href="#sentry-auto-scaling" title="Permalink to this headline">¶</a></h1>
+<h2>Sentry-Auto-Scaling<a class="headerlink" href="#sentry-auto-scaling" title="Permalink to this headline">¶</a></h2>
 <p><em>Actually</em>… Sentry Auto Scaling isn’t the best way to protect yourself against DDoS attacks,
 and Certus One is investing in proper DDoS protection rather than sentry scale-out.</p>
 <p>Autoscaling is a common and successful defense against application-layer DDoS in webservers
@@ -319,6 +326,7 @@ validator will still be functional.</p>
 other validators and a diverse set of sentries running at different providers rather than
 building a less effective, but complex cloud autoscaling mechanism.</p>
 </div>
+</div>
 
 
           </div>
@@ -336,16 +344,16 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
 <li class="toctree-l2"><a class="reference internal" href="#intro">Intro</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#the-peer-reactor">The peer reactor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#operation-notes">Operation Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-sentry-architecture">The Sentry architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#the-sentry-architecture">The Sentry architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 </ul>
 
 <div class="relations">
@@ -353,7 +361,7 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="monitoring.html" title="previous chapter">Monitoring, Alerting and Instrumentation</a></li>
-      <li>Next: <a href="key_management.html" title="next chapter">Key Management</a></li>
+      <li>Next: <a href="validator_ha.html" title="next chapter">Validator High-Availability</a></li>
   </ul></li>
 </ul>
 </div>
