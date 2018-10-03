@@ -4,26 +4,35 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Key Management &#8212; Certus One Knowledge Base  documentation</title>
+    <title>Key Management &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="HSM for Signing" href="hsm.html" />
-    <link rel="prev" title="The Tendermint P2P Layer - Improving operations" href="peers.html" />
+    <link rel="prev" title="Tendermint P2P Layer" href="peers.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -33,7 +42,7 @@
             
   <div class="section" id="key-management">
 <h1>Key Management<a class="headerlink" href="#key-management" title="Permalink to this headline">¶</a></h1>
-<p>For validator operations you need 2 types of keys in the Cosmos network.</p>
+<p>For validator operations you need two types of keys in the Cosmos network.</p>
 <dl class="docutils">
 <dt><strong>Validator Key</strong></dt>
 <dd>As discussed in <a class="reference internal" href="hsm.html"><span class="doc">HSM for Signing</span></a> this key is used by your nodes to participate in the consensus.</dd>
@@ -57,28 +66,33 @@ focus on the <em>Account Key</em>.</p>
 <li>Modify validator details (moniker, commission)</li>
 <li>Sign any transaction from this account</li>
 </ul>
-<p>As we can see the key is needed for many important validator tasks.</p>
+<p>As we can see, the key is needed for many important validator tasks.</p>
 <p>Some of these look easy to automate like voting on governance and bonding rewards.</p>
-<p>However if we look at the capabilities of the key something should catch your eyes. The key has the capability to unbond your validator’s self-bond,
-modify the validator and transfer funds.</p>
-<p>This makes the account key very critical since it basically indicates the ownership of the validator. So we need to think about how to <strong>protect</strong> the key.</p>
+<p>However, the key’s capabilities include unbonding your validator’s self-bond, modify the validator
+and transfer funds, which makes it highly critical.</p>
+<p>The account key basically indicates the ownership of the validator.
+It is very important to <strong>protect</strong> and safeguard the key.</p>
 <hr class="docutils" />
 <p>It quickly becomes apparent that you don’t want to keep this key on an online machine - especially not stored on a normal machine like in the (encrypted) format of gaiacli.</p>
 <img alt="_images/ledger.jpg" src="_images/ledger.jpg" />
-<a href="https://www.flickr.com/photos/kndynt2099/38807488710/in/photostream/" target="_blank">"IMG_7984"</a> by Dennis Amith is licensed under <a href="http://creativecommons.org/licenses/by-nc/4.0" target="_blank">CC BY-NC 4.0</a><p>A possibility introduced by the Cosmos Team is the <strong>Ledger Nano S</strong>. It is a hardware wallet that stores the private key of your validator account just like
-a HSM without any possibility for you to extract the key (except a backup phrase).</p>
-<p>Support for the Ledger is built into the latest version of <code class="docutils literal notranslate"><span class="pre">gaiacli</span></code>. However the <a class="reference external" href="https://github.com/cosmos/ledger-cosmos">Ledger App</a> is still not in the public application store and has to be
+<i><small><a href="https://www.flickr.com/photos/kndynt2099/38807488710/in/photostream/" target="_blank">"IMG_7984"</a> by Dennis Amith is licensed under <a href="http://creativecommons.org/licenses/by-nc/4.0" target="_blank">CC BY-NC 4.0</a></small></i><p>A possibility introduced by the Cosmos Team is the <strong>Ledger Nano S</strong>. It is a hardware wallet
+that stores the private key of your validator account just like a HSM without any possibility for
+you to extract the key (except for the backup phrase generated during setup).</p>
+<p>Support for the Ledger is built into the latest version of <code class="docutils literal"><span class="pre">gaiacli</span></code>. However, the <a class="reference external" href="https://github.com/cosmos/ledger-cosmos">Ledger App</a> is still not in the public application store and has to be
 installed manually.</p>
 <p>In order to sign a transaction or message you need to click a physical button on the Ledger and are also able to check the authenticity of the
 transaction content on the display to prevent any attacks even on a compromised system.</p>
 <p>The added security is basically a <strong>no-brainer</strong> for every validator since losing the key basically means the <em>death</em> of the validator’s business.</p>
 <div class="section" id="drawbacks">
 <h3>Drawbacks<a class="headerlink" href="#drawbacks" title="Permalink to this headline">¶</a></h3>
-<p>The need to physically interact with the Ledger makes it <em>almost</em> impossible to automate any of these tasks like auto-bonding or governance participation.</p>
-<p>But since the slashing for governance participation was removed <a class="footnote-reference" href="#governance" id="id1">[1]</a> automatic participation is not necessary since the voting period
-will be long enough for human interaction which is nonetheless necessary because the validator will want carefully assess each goverannce proposal.</p>
-<p>Considering the added security and potential consequences that would otherwise arise from a compromised host drawbacks like no being able can be neglected.
-Especially because bonding can be performed manually on a regular basis without huge disadvantages profit-wise.</p>
+<p>The need to physically interact with the Ledger makes it <em>mostly</em> impossible to
+automate any of these tasks like auto-bonding or governance participation.</p>
+<p>Since the slashing for governance participation was removed <a class="footnote-reference" href="#governance" id="id1">[1]</a>, automatic
+governance participation is not necessary or useful - the voting period will be long
+enough for human interaction, which is the whole point of it - governance is
+not <em>supposed</em> to be automated, and the validator will want carefully assess each governance proposal.</p>
+<p>Auto-bonding and similar automation is of little use outside the Game of Stakes.
+Bonding involves large sums of money and should be a manual activity.</p>
 <table class="docutils footnote" frame="void" id="governance" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
@@ -94,25 +108,43 @@ Especially because bonding can be performed manually on a regular basis without 
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/brand.png" alt="Logo"/>
+            </a></p><h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Key Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#handling-of-the-account-key">Handling of the Account Key</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="peers.html" title="previous chapter">The Tendermint P2P Layer - Improving operations</a></li>
+      <li>Previous: <a href="peers.html" title="previous chapter">Tendermint P2P Layer</a></li>
       <li>Next: <a href="hsm.html" title="next chapter">HSM for Signing</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -123,7 +155,7 @@ Especially because bonding can be performed manually on a regular basis without 
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |

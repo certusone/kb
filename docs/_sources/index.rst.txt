@@ -7,21 +7,21 @@ Validator Operations Guide
 ==========================
 
 Running a proof-of-stake validator puts a much greater emphasis on technical correctness, sound
-systems architecture, security, and overall operational excellence than most distributed systems
-than most applications. In a proof-of-stake cryptocurrency, operational skills take the place of
-raw computational power. This means that the design process, documentation and knowledge sharing
-are particularly important for validator operations.
+systems architecture, security, and overall operational excellence than most distributed systems.
+In a proof-of-stake cryptocurrency, operational skills take the place of raw computational power.
+This means that the design process, documentation and knowledge sharing are particularly
+important for validator operations.
 
 This guide is a living document which details a set of best practices for running a validator
-service, as implemented by Certus One, as well as technical background to help you design your
+service as implemented by Certus One, as well as technical background to help you design your
 own validator architecture.
 
-The aim of this document is to provide a baseline for validator operation, both to make it easier
+The aim of this document is to provide a baseline for validator operations, both to make it easier
 for new validators to get started, and to provide input to other teams. We believe that
 collaboration and openness strongly benefits the overall ecosystem - the more well-run
 validators there are, the more resilient will the network be.
 
-While this document's focus is running a Tendermint/Cosmos validator, but much of its content is
+While this document's focus is running a Tendermint/Cosmos validator, much of its content is
 applicable to operating any highly available, distributed service.
 
 While it's hard to provide an implementation that fits all use cases, we try to provide
