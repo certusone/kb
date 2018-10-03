@@ -231,8 +231,9 @@ PEX disabled and the peering with the other nodes hardcoded as
 <em>persistent peer</em>.</p>
 </div>
 </div>
+</div>
 <div class="section" id="the-sentry-architecture">
-<h2>The Sentry architecture<a class="headerlink" href="#the-sentry-architecture" title="Permalink to this headline">¶</a></h2>
+<h1>The Sentry architecture<a class="headerlink" href="#the-sentry-architecture" title="Permalink to this headline">¶</a></h1>
 <p>In order to deploy multiple different kinds of nodes, as described above, in our network and
 combine their strengths we need an additional layer besides our single validator node (or
 multiple validator nodes).</p>
@@ -247,7 +248,6 @@ The PEX reactor is limited in a way to not broadcast the validator nodes to the 
 <p>As a result no network participant will ever have a direct connection with one of our validator nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a shielding layer and are
 not limited in their number since they only act as a proxy and have no special <em>stateful</em> task like signing. New nodes can be added and removed at any time as long as a minimum amount is kept online.</p>
 <p>To learn more about the Sentry architecture and how to configure your nodes accordingly look at the <a class="reference external" href="https://cosmos.network/docs/validators/security.html#sentry-nodes-ddos-protection">Cosmos Docs</a>.</p>
-</div>
 </div>
 <div class="section" id="sentry-auto-scaling">
 <h1>Sentry-Auto-Scaling<a class="headerlink" href="#sentry-auto-scaling" title="Permalink to this headline">¶</a></h1>
@@ -336,9 +336,9 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
 <li class="toctree-l2"><a class="reference internal" href="#intro">Intro</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#the-peer-reactor">The peer reactor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#operation-notes">Operation Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#the-sentry-architecture">The Sentry architecture</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#the-sentry-architecture">The Sentry architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
