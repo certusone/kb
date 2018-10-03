@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Tendermint P2P Layer &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -31,8 +23,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -51,8 +42,8 @@ systems architecture implications.</p>
 concept.</p>
 <div class="section" id="types-of-peers">
 <h3>Types of peers<a class="headerlink" href="#types-of-peers" title="Permalink to this headline">¶</a></h3>
-<p>Each node in the network is configured to dial a set of <code class="docutils literal"><span class="pre">seed</span></code> and
-<code class="docutils literal"><span class="pre">persistentPeers</span></code> when it is first started. Both of these parameters
+<p>Each node in the network is configured to dial a set of <code class="docutils literal notranslate"><span class="pre">seed</span></code> and
+<code class="docutils literal notranslate"><span class="pre">persistentPeers</span></code> when it is first started. Both of these parameters
 can be set in the config.</p>
 <dl class="docutils">
 <dt><strong>Persistent peers</strong></dt>
@@ -95,7 +86,7 @@ is marked as bad and removed from the addressbook.</p>
 <dd>Every connection that was initiated by another peer
 which contacted our node from the outside is called an inbound
 connection. The number of maximum inbound connections can be specified
-with <code class="docutils literal"><span class="pre">max_num_inbound_peers</span></code>. In order for another peer to create a
+with <code class="docutils literal notranslate"><span class="pre">max_num_inbound_peers</span></code>. In order for another peer to create a
 connection to our node our P2P port (26656 by default) has to be
 publicly exposed.</dd>
 <dt><strong>Outbound connection</strong></dt>
@@ -122,7 +113,7 @@ empty, it will try to connect to one of the specified nodes.</p>
 <div class="section" id="loop">
 <h4>Loop<a class="headerlink" href="#loop" title="Permalink to this headline">¶</a></h4>
 <p>In the peer exchange routine the node will try to connect to new nodes
-from its addressbook until it has reached the <code class="docutils literal"><span class="pre">max_num_outbound_peers</span></code>
+from its addressbook until it has reached the <code class="docutils literal notranslate"><span class="pre">max_num_outbound_peers</span></code>
 (as of tendermint commit <a class="reference external" href="https://github.com/tendermint/tendermint/commit/6fad8eaf5a7d82000c3f2933ec61e0f3917d07cf">6fad8eaf5</a>).</p>
 <p>It will also query a random peer for its addressbook if the addressbook
 of itself is not yet “full” (currently 1000 entries).</p>
@@ -252,7 +243,7 @@ basically build a <em>proxy</em> layer between this network and the public inter
 <p>As a result no network participant will ever have a direct connection with one of our validator
 nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a
 shielding layer and are not limited in their number since they only act as a proxy and have no
-special <a href="#id3"><span class="problematic" id="id4">*</span></a>stateful*task like signing. New nodes can be added and removed at any time as long as a
+special <em>stateful</em> task like signing. New nodes can be added and removed at any time as long as a
 minimum amount is kept online.</p>
 <p>To learn more about the Sentry architecture and how to configure your nodes accordingly look at the <a class="reference external" href="https://cosmos.network/docs/validators/security.html#sentry-nodes-ddos-protection">Cosmos Docs</a>.</p>
 </div>
@@ -295,7 +286,7 @@ experienced in mitigating DDoS attacks and has sufficient bandwidth, he will eas
 mitigate the attacks. They are straight-forward to filter (fixed source port).</p>
 <p>The same goes for SYN floods - they either kill your node right away, or are easily defeated or rate
 limited to insignificance by a competent provider or even a cloud provider’s TCP proxy
-(see above - GCE and CloudFlare can both proxy TCP connections).</p>
+(see above - GCP and CloudFlare can both proxy TCP connections).</p>
 <p>Auto scaling of sentries <em>can</em> help with volumetric attacks, as you would just spawn more sentries until
 the attacker no longer has sufficient capacities to attack all of them.</p>
 <p>The issue is that this requires a lot of resources on your side. Spawning up nodes to match the
@@ -303,17 +294,17 @@ bandwidth of the attacker can be quite expensive, especially over longer periods
 you might remain online during the attack, the attacker is still having the financial upper hand
 and could potentially blackmail you (he’s not paying for the compromised servers he’s using!).</p>
 <p>In order to quickly scale up Cosmos nodes you need to have snapshots of the blockchain
-data in place because it would take very long for it to sync with the network. That is another
+data in place because it would otherwise take very long for it to sync with the network. That is another
 point of failure in case of such an attack especially considering the growing size of the
-blockchain and the extra infrastructure you need. Even with recent snapshots, it will take
-a while for you new node to catch up.</p>
+blockchain and the extra infrastructure you need. Additionally, even with recent snapshots,
+it will take a while for you new node to catch up.</p>
 <p>What else to do?</p>
 <p>One of the very obvious alternatives and additional security measures is <strong>outbound-only nodes</strong>
-as described above, in combination with a global TCP proxy like GCE’s global LB or CloudFlare
+as described above, in combination with a global TCP proxy like GCP’s global LB or CloudFlare
 Spectrum. These can handle bandwidths in excess of most realistic DDoS attacks, without any of
 the traffic reaching your sentry node. Additionally, chances are that your attacker do not even
-know the IP address of the node since it only initiates a limited amount of outbound connections
-. This can further be stripped down to a selected set of peers to further increase security
+know the IP address of the node since it only initiates a limited amount of outbound connections.
+This can even be stripped down to a selected set of peers to further increase security
 which ultimately leads us to <em>private peers</em>.</p>
 <p>With <strong>private peers</strong> in place, you have got nodes that are not publicly known and in the best case
 (with potential direct <em>in-cloud peerings</em> or private network interconnects) expose almost no external
@@ -367,12 +358,14 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -383,7 +376,7 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |

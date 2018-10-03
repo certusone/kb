@@ -46,11 +46,16 @@ time, and modifying those contracts at a later point is annoying and a lot more 
 ..
   Founder's vesting. It essentially means that founders have to "earn" their shares by not leaving
   the company. If a founder decides to leave before the vesting period is over, the company has a
-  right to buy back the remainder of his unvested shares.
+  right to buy back or automatically gets back the remainder of his unvested shares.
+
+  In addition, this can be extended with a cliff. It means that founders will not earn any shares until
+  the cliff period is over and then immediately receives the vested shares he would have normally received
+  in this period. 
 
   There's
 
   - Vesting schedule
+  - Cliff period
   - Shoot out
 
 

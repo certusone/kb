@@ -4,34 +4,26 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Validator High-Availability &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Business Continuity" href="business_continuity.html" />
+    <link rel="next" title="HSM for Signing" href="hsm.html" />
+    <link rel="prev" title="Tendermint P2P Layer" href="peers.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -59,7 +51,7 @@ are inevitable in any distributed system, you can’t pick CA, and the only choi
 <p>With Cosmos validators, the penalty for inconsistency (double signing!) is much harsher than
 unavailability (you even get a few minutes to fix it before you are slashed). This means that
 the only reasonable choice is a CP system - if there’s even the slightest possibility that more
-than one node is active, it needs to sacrifice availability (i.e. stop signing).</p>
+than one node is active at the same time, it needs to sacrifice availability (i.e. stop signing).</p>
 <div class="section" id="single-node-validator">
 <h2>Single Node Validator<a class="headerlink" href="#single-node-validator" title="Permalink to this headline">¶</a></h2>
 <p>Since inconsistency is so dangerous, running a single-node validator is a very reasonable choice.
@@ -68,7 +60,8 @@ experienced systems architect, has a very low failure rate sufficient for many l
 <p>As any sysadmin will tell you, badly designed high availability setups tend to fail at a much
 higher frequency than reliable single-node ones.</p>
 <p>By never running two nodes at the same time, the risk of double signing is very low - one would
-have to trick your replacement validator into signing an earlier block while it recovers.</p>
+have to trick your replacement validator into signing an earlier block while it recovers or
+exploit a vulnerability in Tendermint.</p>
 <p>However, if the hardware or datacenter does fail in a catastropic way, you will be down for an
 extended period of time until you have got replacement hardware in place and re-synced. While
 acceptable for low-stakes validators, most commercial validator operations won’t be able to accept
@@ -79,11 +72,11 @@ packaging foil that someone left in the rack).</p>
 </div>
 <div class="section" id="active-standby-validator">
 <h2>Active-Standby Validator<a class="headerlink" href="#active-standby-validator" title="Permalink to this headline">¶</a></h2>
-<p>The next obvious step after a single-node validator is an active-standby setup with
+<p>The next obvious step following a single-node validator is an active-standby setup with
 manually promoted slaves. If the active node dies, a sysadmin gets paged, ensures the active node
 is actually dead, and then manually promotes the standby node. You would be surprised how many
 large SaaS businesses rely on a single beefy MySQL or Postgres server with manual failover!</p>
-<p>Both nodes would be identically configured, with the same validator key and moniker.</p>
+<p>Both nodes would be identically configured, with the same validator key, mnode key and moniker.</p>
 <p>This requires an on-call rotation with very low response times, which is expensive - you’re
 basically paying someone to sit at home all week, ready to react within minutes (most companies
 which do this do a follow-the-sun rotation with offices on three continents). It’s also susceptible
@@ -91,12 +84,13 @@ to human error in determining node states.</p>
 <p>Fortunately, active-standby setups are very common and there’s a lot of tooling for automated
 failover. The state-of-the art solution is <a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/high_availability_add-on_overview/ch-introduction-haao">Pacemaker/Corosync</a>, superseding <a class="reference external" href="https://web.archive.org/web/20180829165659/http://www.linux-ha.org/wiki/Main_Page">heartbeat</a>. Both
 were initially designed for VM clusters, which have very similar requirements to validators: no
-VM may ever run twice on the cluster, since it would result in immediate data corruption with two
-VMs running from the same storage.</p>
+VM may ever run twice on the cluster, since it would result in immediate data corruption with both
+running from the same storage.</p>
 <p>While Pacemaker/Corosync supports running with only two nodes, this is essentially a CA setup and
 <em>will not</em> survive a network partition. This is common (and reasonable) for router/firewall
 clusters, with devices close to each other and redundant network interfaces and cabling, but we
-do not recommend a two-node cluster for validators due to the obvious risks.</p>
+do not recommend a two-node cluster for validators due to the obvious risks e.g. of reaching
+a <em>split-brain</em> scenario where both nodes go active at the same time.</p>
 <p>Best practice for Pacemaker is a three node deployment - one active node, one standby node and
 a third quorum-only/witness node. Pacemaker will only <em>enable a resource</em> (i.e. start the validator
 service) if it can establish a quorum, and will <em>self-fence</em> (i.e. kill the validator service;
@@ -108,7 +102,7 @@ service manager reporting the validator service as down when it’s actually sti
 <p>To prevent these cases, a so-called <em>fencing device</em> like a mechanical relay or out-of-band management
 interface (IPMI, iLO, …) is necessary which interrupts power for the other node to ensure that
 it’s really <em>really</em> down (also called STONITH - “shoot the other node in the head”).</p>
-<p>A Pacemaker/Corosync is a good option for validator high availability, but be careful:</p>
+<p>A Pacemaker/Corosync is a good option for validator high availability, but involves risks and drawbacks:</p>
 <ul class="simple">
 <li>Pacemaker/Corosync is complicated to operate and has many edge cases. We recommend reading
 the Red Hat guide linked above which details common Pacemaker setups, and hiring
@@ -119,11 +113,11 @@ mechanisms needs to be tested extensively to reduce chance of failure.</li>
 <li>Fencing and failover based on network load balancers or IP failover are unlikely to work as
 expected due to stateful connections and the P2P nature of the Tendermint network.
 You need to ensure that the actual processes (and ideally the physical hosts) are stopped.</li>
-<li>You need to synchronously synchronize block height/round/step to your standby node or risk double
-signing due to a race condition during failover or someone tricking your node. Do not use shared
-or replicated storage - it’s hard to reason about and introduces an additional point of failure
+<li>You need to synchronize block height/round/step of the last signature to your standby node or risk
+double signing due to a race condition during failover or someone tricking your node. Do not use
+shared or replicated storage - it’s hard to reason about and introduces an additional point of failure
 (see our response in <a class="reference external" href="https://forum.cosmos.network/t/backing-up-validator-server-physical-data-center/751/2?u=certus_zl">this forum thread</a>).</li>
-<li>Pacemaker/Corosync aren’t designed to work across high latency network, so this setup won’t scale
+<li>Pacemaker/Corosync aren’t designed to work across high latency networks, so this setup won’t scale
 beyond a single data center or even metro network (the corosync protocol expects latencies &lt;2ms).</li>
 </ul>
 </div>
@@ -132,10 +126,10 @@ beyond a single data center or even metro network (the corosync protocol expects
 <p>Certus One has settled for an active-active validator setup. We run multiple validators, with the
 same key, <em>at the same time</em>, in multiple geographically distributed data centers.
 We built our own Raft-based consensus layer on top of the Tendermint core by implementing our own
-PrivValidator, which forces all signatures through a full Raft consensus.</p>
-<p>While we’ve seen some proposals to use the Tendermint protocol itself to provide consensus, we
-decided it would introduce unnecessary complexity where a (comparably) simple protocol like Raft
-would suffice - we fortunately don’t need byzantine fault tolerance here.</p>
+PrivValidator wrapper, which forces all signatures through a full Raft consensus.</p>
+<p>While we’ve seen some proposals <a class="footnote-reference" href="#ha1" id="id1">[1]</a> <a class="footnote-reference" href="#ha2" id="id2">[2]</a> to use the Tendermint protocol itself to provide
+consensus, we decided it would introduce unnecessary complexity where a (comparably) simple protocol
+like Raft would suffice - we fortunately don’t need byzantine fault tolerance here.</p>
 <p>This removes the brittleness of active-passive setups and the synchrony requirements of the corosync
 protocol. All of our validators are synchronized with the network at the current block height, ready
 to sign, while reliably preventing double signing through the Raft log.</p>
@@ -144,17 +138,35 @@ wins, though - there’s a small window of time where a node can crash just befo
 signature to the network, where we cannot reliably retry the operation since we can’t know for
 sure whether it succeeded; this is deliberate and cannot be fixed without risking consistency).</p>
 <p>While our active-active technology - called JANUS - currently isn’t an open source project, we
-open-sourced all of its dependencies and the testing framework we use. We’re closely following
-upstream discussions and may decide to open source JANUS later.</p>
+open-sourced all of its dependencies and the testing framework <a class="footnote-reference" href="#testing" id="id3">[3]</a> we use. We’re closely
+following upstream discussions and may decide to open source JANUS later.</p>
 <p>We believe that active-active validator setups are the best way going forward,
 and look forward to contribute to the community discussions regarding active-active setups.</p>
+<table class="docutils footnote" frame="void" id="ha1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://github.com/tendermint/tendermint/issues/1758">https://github.com/tendermint/tendermint/issues/1758</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="ha2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[2]</a></td><td><a class="reference external" href="https://github.com/tendermint/kms/issues/29">https://github.com/tendermint/kms/issues/29</a></td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="testing" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[3]</a></td><td><a class="reference internal" href="testing.html"><span class="doc">Testing your tooling</span></a></td></tr>
+</tbody>
+</table>
 <div class="section" id="network-topology">
 <h3>Network topology<a class="headerlink" href="#network-topology" title="Permalink to this headline">¶</a></h3>
 <p>Raft is usually deployed within a single data center, however, the protocol does not <em>require</em> low
 latencies and works just fine with higher latencies (at the expense of elections and consensus
 read/writes taking a multiple of the worst latency in the cluster), assuming proper tuning and
 timeouts. The acceptable latency depends on the block times in the Tendermint network. We’re
-running all nodes within central Europe with no node being father away than 50ms to ensure that
+running all nodes within central Europe with no node being farther away than 50ms to ensure that
 a consensus read completes within &lt;1s.</p>
 <p>We run at most one validator per data center, with no more than <em>n</em> validators per autonomous system,
 where <em>n</em> is the number of nodes that the cluster can lose without losing consensus. All nodes are
@@ -181,36 +193,38 @@ as internet exchanges while at most losing one block.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
-<li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Validator High-Availability</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#single-node-validator">Single Node Validator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#active-standby-validator">Active-Standby Validator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#active-active-validator">Active-Active Validator</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="business_continuity.html" title="previous chapter">Business Continuity</a></li>
+      <li>Previous: <a href="peers.html" title="previous chapter">Tendermint P2P Layer</a></li>
+      <li>Next: <a href="hsm.html" title="next chapter">HSM for Signing</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -221,7 +235,7 @@ as internet exchanges while at most losing one block.</p>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |

@@ -26,7 +26,7 @@ are inevitable in any distributed system, you can't pick CA, and the only choice
 With Cosmos validators, the penalty for inconsistency (double signing!) is much harsher than
 unavailability (you even get a few minutes to fix it before you are slashed). This means that
 the only reasonable choice is a CP system - if there's even the slightest possibility that more
-than one node is active, it needs to sacrifice availability (i.e. stop signing).
+than one node is active at the same time, it needs to sacrifice availability (i.e. stop signing).
 
 Single Node Validator
 =====================
@@ -39,7 +39,8 @@ As any sysadmin will tell you, badly designed high availability setups tend to f
 higher frequency than reliable single-node ones.
 
 By never running two nodes at the same time, the risk of double signing is very low - one would
-have to trick your replacement validator into signing an earlier block while it recovers.
+have to trick your replacement validator into signing an earlier block while it recovers or
+exploit a vulnerability in Tendermint.
 
 However, if the hardware or datacenter does fail in a catastropic way, you will be down for an
 extended period of time until you have got replacement hardware in place and re-synced. While
@@ -54,12 +55,12 @@ packaging foil that someone left in the rack).
 Active-Standby Validator
 ========================
 
-The next obvious step after a single-node validator is an active-standby setup with
+The next obvious step following a single-node validator is an active-standby setup with
 manually promoted slaves. If the active node dies, a sysadmin gets paged, ensures the active node
 is actually dead, and then manually promotes the standby node. You would be surprised how many
 large SaaS businesses rely on a single beefy MySQL or Postgres server with manual failover!
 
-Both nodes would be identically configured, with the same validator key and moniker.
+Both nodes would be identically configured, with the same validator key, mnode key and moniker.
 
 This requires an on-call rotation with very low response times, which is expensive - you're
 basically paying someone to sit at home all week, ready to react within minutes (most companies
@@ -69,13 +70,14 @@ to human error in determining node states.
 Fortunately, active-standby setups are very common and there's a lot of tooling for automated
 failover. The state-of-the art solution is `Pacemaker/Corosync`_, superseding `heartbeat`_. Both
 were initially designed for VM clusters, which have very similar requirements to validators: no
-VM may ever run twice on the cluster, since it would result in immediate data corruption with two
-VMs running from the same storage.
+VM may ever run twice on the cluster, since it would result in immediate data corruption with both
+running from the same storage.
 
 While Pacemaker/Corosync supports running with only two nodes, this is essentially a CA setup and
 *will not* survive a network partition. This is common (and reasonable) for router/firewall
 clusters, with devices close to each other and redundant network interfaces and cabling, but we
-do not recommend a two-node cluster for validators due to the obvious risks.
+do not recommend a two-node cluster for validators due to the obvious risks e.g. of reaching
+a *split-brain* scenario where both nodes go active at the same time.
 
 Best practice for Pacemaker is a three node deployment - one active node, one standby node and
 a third quorum-only/witness node. Pacemaker will only *enable a resource* (i.e. start the validator
@@ -91,7 +93,7 @@ To prevent these cases, a so-called *fencing device* like a mechanical relay or 
 interface (IPMI, iLO, ...) is necessary which interrupts power for the other node to ensure that
 it's really *really* down (also called STONITH - "shoot the other node in the head").
 
-A Pacemaker/Corosync is a good option for validator high availability, but be careful:
+A Pacemaker/Corosync is a good option for validator high availability, but involves risks and drawbacks:
 
 - Pacemaker/Corosync is complicated to operate and has many edge cases. We recommend reading
   the Red Hat guide linked above which details common Pacemaker setups, and hiring
@@ -105,13 +107,13 @@ A Pacemaker/Corosync is a good option for validator high availability, but be ca
   expected due to stateful connections and the P2P nature of the Tendermint network.
   You need to ensure that the actual processes (and ideally the physical hosts) are stopped.
 
-- You need to synchronously synchronize block height/round/step to your standby node or risk double
-  signing due to a race condition during failover or someone tricking your node. Do not use shared
-  or replicated storage - it's hard to reason about and introduces an additional point of failure
+- You need to synchronize block height/round/step of the last signature to your standby node or risk 
+  double signing due to a race condition during failover or someone tricking your node. Do not use 
+  shared or replicated storage - it's hard to reason about and introduces an additional point of failure
   (see our response in `this forum thread
   <https://forum.cosmos.network/t/backing-up-validator-server-physical-data-center/751/2?u=certus_zl>`_).
 
-- Pacemaker/Corosync aren't designed to work across high latency network, so this setup won't scale
+- Pacemaker/Corosync aren't designed to work across high latency networks, so this setup won't scale
   beyond a single data center or even metro network (the corosync protocol expects latencies <2ms).
 
 .. _Pacemaker/Corosync: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/high_availability_add-on_overview/ch-introduction-haao
@@ -124,11 +126,11 @@ Active-Active Validator
 Certus One has settled for an active-active validator setup. We run multiple validators, with the
 same key, *at the same time*, in multiple geographically distributed data centers.
 We built our own Raft-based consensus layer on top of the Tendermint core by implementing our own
-PrivValidator, which forces all signatures through a full Raft consensus.
+PrivValidator wrapper, which forces all signatures through a full Raft consensus.
 
-While we've seen some proposals to use the Tendermint protocol itself to provide consensus, we
-decided it would introduce unnecessary complexity where a (comparably) simple protocol like Raft
-would suffice - we fortunately don't need byzantine fault tolerance here.
+While we've seen some proposals [#ha1]_ [#ha2]_ to use the Tendermint protocol itself to provide
+consensus, we decided it would introduce unnecessary complexity where a (comparably) simple protocol
+like Raft would suffice - we fortunately don't need byzantine fault tolerance here.
 
 This removes the brittleness of active-passive setups and the synchrony requirements of the corosync
 protocol. All of our validators are synchronized with the network at the current block height, ready
@@ -140,11 +142,15 @@ signature to the network, where we cannot reliably retry the operation since we 
 sure whether it succeeded; this is deliberate and cannot be fixed without risking consistency).
 
 While our active-active technology - called JANUS - currently isn't an open source project, we
-open-sourced all of its dependencies and the testing framework we use. We're closely following
-upstream discussions and may decide to open source JANUS later.
+open-sourced all of its dependencies and the testing framework [#testing]_ we use. We're closely
+following upstream discussions and may decide to open source JANUS later.
 
 We believe that active-active validator setups are the best way going forward,
 and look forward to contribute to the community discussions regarding active-active setups.
+
+.. [#ha1] https://github.com/tendermint/tendermint/issues/1758
+.. [#ha2] https://github.com/tendermint/kms/issues/29
+.. [#testing] :doc:`testing`
 
 Network topology
 ----------------
@@ -153,7 +159,7 @@ Raft is usually deployed within a single data center, however, the protocol does
 latencies and works just fine with higher latencies (at the expense of elections and consensus
 read/writes taking a multiple of the worst latency in the cluster), assuming proper tuning and
 timeouts. The acceptable latency depends on the block times in the Tendermint network. We're
-running all nodes within central Europe with no node being father away than 50ms to ensure that
+running all nodes within central Europe with no node being farther away than 50ms to ensure that
 a consensus read completes within <1s.
 
 We run at most one validator per data center, with no more than *n* validators per autonomous system,

@@ -244,7 +244,7 @@ validator nodes to the other public peers in the network.
 As a result no network participant will ever have a direct connection with one of our validator
 nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a
 shielding layer and are not limited in their number since they only act as a proxy and have no
-special *stateful*task like signing. New nodes can be added and removed at any time as long as a
+special *stateful* task like signing. New nodes can be added and removed at any time as long as a
 minimum amount is kept online.
 
 To learn more about the Sentry architecture and how to configure your nodes accordingly look at the `Cosmos Docs`_.
@@ -301,7 +301,7 @@ mitigate the attacks. They are straight-forward to filter (fixed source port).
 
 The same goes for SYN floods - they either kill your node right away, or are easily defeated or rate
 limited to insignificance by a competent provider or even a cloud provider's TCP proxy
-(see above - GCE and CloudFlare can both proxy TCP connections).
+(see above - GCP and CloudFlare can both proxy TCP connections).
 
 Auto scaling of sentries *can* help with volumetric attacks, as you would just spawn more sentries until
 the attacker no longer has sufficient capacities to attack all of them.
@@ -312,19 +312,19 @@ you might remain online during the attack, the attacker is still having the fina
 and could potentially blackmail you (he's not paying for the compromised servers he's using!).
 
 In order to quickly scale up Cosmos nodes you need to have snapshots of the blockchain
-data in place because it would take very long for it to sync with the network. That is another
+data in place because it would otherwise take very long for it to sync with the network. That is another
 point of failure in case of such an attack especially considering the growing size of the
-blockchain and the extra infrastructure you need. Even with recent snapshots, it will take
-a while for you new node to catch up.
+blockchain and the extra infrastructure you need. Additionally, even with recent snapshots,
+it will take a while for you new node to catch up.
 
 What else to do?
 
 One of the very obvious alternatives and additional security measures is **outbound-only nodes**
-as described above, in combination with a global TCP proxy like GCE's global LB or CloudFlare
+as described above, in combination with a global TCP proxy like GCP's global LB or CloudFlare
 Spectrum. These can handle bandwidths in excess of most realistic DDoS attacks, without any of
 the traffic reaching your sentry node. Additionally, chances are that your attacker do not even
-know the IP address of the node since it only initiates a limited amount of outbound connections
-. This can further be stripped down to a selected set of peers to further increase security
+know the IP address of the node since it only initiates a limited amount of outbound connections.
+This can even be stripped down to a selected set of peers to further increase security
 which ultimately leads us to *private peers*.
 
 With **private peers** in place, you have got nodes that are not publicly known and in the best case
