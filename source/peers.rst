@@ -219,7 +219,7 @@ PEX disabled and the peering with the other nodes hardcoded as
 *persistent peer*.
 
 The Sentry architecture
-=======================
+-----------------------
 
 In order to deploy multiple different kinds of nodes, as described above, in our network and
 combine their strengths we need an additional layer besides our single validator node (or
@@ -228,25 +228,31 @@ multiple validator nodes).
 In order to effectively mitigate DDoS attacks we also don't want to publicly expose our validator
 nodes (IPs) to the internet.
 
-This is implemented in an architecture developed by the Tendermint/Cosmos team called *Sentry node architecture*.
+This is implemented in an architecture developed by the Tendermint/Cosmos team called
+*Sentry node architecture*.
 
-While the validators reside in a Virtual Private Network (like it's e.g. offered by many cloud providers) or actual private network that is disconnected from the internet
-our Sentries basically build a *proxy* layer between this network and the public internet / cosmos network.
+While the validators reside in a Virtual Private Network (like it's e.g. offered by many cloud
+providers) or actual private network that is disconnected from the internet our Sentries
+basically build a *proxy* layer between this network and the public internet / cosmos network.
 
 *Sentry* nodes are full cosmos nodes whose only task it is to relay messages and blocks to the validator nodes.
 
-This is done by assigning the Sentry nodes both a public and private interface and hardcoding the validator nodes as persistent peers.
-The PEX reactor is limited in a way to not broadcast the validator nodes to the other public peers in the network.
+This is done by assigning the Sentry nodes both a public and private interface and hardcoding the
+ validator nodes as persistent peers. The PEX reactor is limited in a way to not broadcast the
+validator nodes to the other public peers in the network.
 
-As a result no network participant will ever have a direct connection with one of our validator nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a shielding layer and are
-not limited in their number since they only act as a proxy and have no special *stateful* task like signing. New nodes can be added and removed at any time as long as a minimum amount is kept online.
+As a result no network participant will ever have a direct connection with one of our validator
+nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a
+shielding layer and are not limited in their number since they only act as a proxy and have no
+special *stateful*task like signing. New nodes can be added and removed at any time as long as a
+minimum amount is kept online.
 
 To learn more about the Sentry architecture and how to configure your nodes accordingly look at the `Cosmos Docs`_.
 
 .. _`Cosmos Docs`: https://cosmos.network/docs/validators/security.html#sentry-nodes-ddos-protection
 
 Sentry-Auto-Scaling
-===================
+-------------------
 
 *Actually*... Sentry Auto Scaling isn't the best way to protect yourself against DDoS attacks,
 and Certus One is investing in proper DDoS protection rather than sentry scale-out.
