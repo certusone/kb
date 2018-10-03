@@ -43,7 +43,7 @@ have to trick your replacement validator into signing an earlier block while it 
 
 However, if the hardware or datacenter does fail in a catastropic way, you will be down for an
 extended period of time until you have got replacement hardware in place and re-synced. While
-acceptable for low-stakes validators, most commercial validator operation won't be able to accept
+acceptable for low-stakes validators, most commercial validator operations won't be able to accept
 this risk. Even redundant power and networking setups have a non-zero chance of failure, in fact,
 most systems aren't fully isolated and failures often tend to be correlated.
 
@@ -54,15 +54,16 @@ packaging foil that someone left in the rack).
 Active-Standby Validator
 ========================
 
-As hinted above, the obvious step after a single-node validator is an active-standby setup with
+The next obvious step after a single-node validator is an active-standby setup with
 manually promoted slaves. If the active node dies, a sysadmin gets paged, ensures the active node
-is actually dead, and then manually promotes the standby node.
+is actually dead, and then manually promotes the standby node. You would be surprised how many
+large SaaS businesses rely on a single beefy MySQL or Postgres server with manual failover!
 
 Both nodes would be identically configured, with the same validator key and moniker.
 
 This requires an on-call rotation with very low response times, which is expensive - you're
 basically paying someone to sit at home all week, ready to react within minutes (most companies
-who do this do a follow-the-sun rotation with offices on three continents). It's also susceptible
+which do this do a follow-the-sun rotation with offices on three continents). It's also susceptible
 to human error in determining node states.
 
 Fortunately, active-standby setups are very common and there's a lot of tooling for automated
@@ -79,7 +80,7 @@ do not recommend a two-node cluster for validators due to the obvious risks.
 Best practice for Pacemaker is a three node deployment - one active node, one standby node and
 a third quorum-only/witness node. Pacemaker will only *enable a resource* (i.e. start the validator
 service) if it can establish a quorum, and will *self-fence* (i.e. kill the validator service;
-the act of reliably excluding a broken node from the cluster is called *fencing*).
+the act of reliably excluding a broken node from the cluster is called *fencing*) if it loses quorum.
 
 However, even with a quorum, self-fencing can fail. There are many edge cases around the interaction
 between pacemaker and the resources it protects. For instance, if pacemaker crashes,
@@ -115,7 +116,7 @@ A Pacemaker/Corosync is a good option for validator high availability, but be ca
 
 .. _Pacemaker/Corosync: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/high_availability_add-on_overview/ch-introduction-haao
 
-.. _heartbeat: http://linux-ha.org/
+.. _heartbeat: https://web.archive.org/web/20180829165659/http://www.linux-ha.org/wiki/Main_Page
 
 Active-Active Validator
 =======================
@@ -138,9 +139,9 @@ wins, though - there's a small window of time where a node can crash just before
 signature to the network, where we cannot reliably retry the operation since we can't know for
 sure whether it succeeded; this is deliberate and cannot be fixed without risking consistency).
 
-While our active-active technology - called JANUS - currently isn't an open source project, we open-
-sourced all of its dependencies and the testing framework we use. We're closely following upstream
-discussions and may decide to open source JANUS later.
+While our active-active technology - called JANUS - currently isn't an open source project, we
+open-sourced all of its dependencies and the testing framework we use. We're closely following
+upstream discussions and may decide to open source JANUS later.
 
 We believe that active-active validator setups are the best way going forward,
 and look forward to contribute to the community discussions regarding active-active setups.
@@ -150,9 +151,9 @@ Network topology
 
 Raft is usually deployed within a single data center, however, the protocol does not *require* low
 latencies and works just fine with higher latencies (at the expense of elections and consensus
-read/ writes taking a multiple of the lowest latency in the cluster), assuming proper tuning and
+read/writes taking a multiple of the worst latency in the cluster), assuming proper tuning and
 timeouts. The acceptable latency depends on the block times in the Tendermint network. We're
-running all nodes within central Europe with no node being further away than 50ms to ensure that
+running all nodes within central Europe with no node being father away than 50ms to ensure that
 a consensus read completes within <1s.
 
 We run at most one validator per data center, with no more than *n* validators per autonomous system,
@@ -171,3 +172,5 @@ as internet exchanges while at most losing one block.
   ===============
 
   GitHub issues and forum discussions related to
+
+.. https://access.redhat.com/solutions/15575
