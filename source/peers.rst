@@ -219,7 +219,7 @@ PEX disabled and the peering with the other nodes hardcoded as
 *persistent peer*.
 
 The Sentry architecture
------------------------
+=======================
 
 In order to deploy multiple different kinds of nodes, as described above, in our network and
 combine their strengths we need an additional layer besides our single validator node (or
