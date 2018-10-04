@@ -44,6 +44,7 @@ Contents
 
    monitoring
    peers
+   systems
    validator_ha
    hsm
    key_management
