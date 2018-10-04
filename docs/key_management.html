@@ -4,26 +4,35 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Key Management &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Testing your tooling" href="testing.html" />
-    <link rel="prev" title="HSM for Signing" href="hsm.html" />
+    <link rel="next" title="HSM for Signing" href="hsm.html" />
+    <link rel="prev" title="Tendermint P2P Layer" href="peers.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -69,7 +78,7 @@ It is very important to <strong>protect</strong> and safeguard the key.</p>
 <i><small><a href="https://www.flickr.com/photos/kndynt2099/38807488710/in/photostream/" target="_blank">"IMG_7984"</a> by Dennis Amith is licensed under <a href="http://creativecommons.org/licenses/by-nc/4.0" target="_blank">CC BY-NC 4.0</a></small></i><p>A possibility introduced by the Cosmos Team is the <strong>Ledger Nano S</strong>. It is a hardware wallet
 that stores the private key of your validator account just like a HSM without any possibility for
 you to extract the key (except for the backup phrase generated during setup).</p>
-<p>Support for the Ledger is built into the latest version of <code class="docutils literal notranslate"><span class="pre">gaiacli</span></code>. However, the <a class="reference external" href="https://github.com/cosmos/ledger-cosmos">Ledger App</a> is still not in the public application store and has to be
+<p>Support for the Ledger is built into the latest version of <code class="docutils literal"><span class="pre">gaiacli</span></code>. However, the <a class="reference external" href="https://github.com/cosmos/ledger-cosmos">Ledger App</a> is still not in the public application store and has to be
 installed manually.</p>
 <p>In order to sign a transaction or message you need to click a physical button on the Ledger and are also able to check the authenticity of the
 transaction content on the display to prevent any attacks even on a compromised system.</p>
@@ -107,36 +116,35 @@ Bonding involves large sums of money and should be a manual activity.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Key Management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#handling-of-the-account-key">Handling of the Account Key</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="hsm.html" title="previous chapter">HSM for Signing</a></li>
-      <li>Next: <a href="testing.html" title="next chapter">Testing your tooling</a></li>
+      <li>Previous: <a href="peers.html" title="previous chapter">Tendermint P2P Layer</a></li>
+      <li>Next: <a href="hsm.html" title="next chapter">HSM for Signing</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -147,7 +155,7 @@ Bonding involves large sums of money and should be a manual activity.</p>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |

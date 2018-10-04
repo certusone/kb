@@ -1,0 +1,159 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Systems Design &#8212; Validator Operations Guide  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Validator High-Availability" href="validator_ha.html" />
+    <link rel="prev" title="Tendermint P2P Layer" href="peers.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="systems-design">
+<h1>Systems Design<a class="headerlink" href="#systems-design" title="Permalink to this headline">¶</a></h1>
+<p>The key to building and maintaining highly secure and reliable systems is <strong>simplicity</strong> -
+a good system will have nothing to take away, rather than nothing to add.</p>
+<p>Each component you use you will have to secure, update and debug forever. Like open source
+projects which reject code not because it’s bad, but because they don’t have sufficient
+capacaties to maintain it, you need to be very careful about each piece of technology you
+introduce into your stack and carefully weight its benefits against the extra complexity it
+introduces.</p>
+<p>Debugging and securing a system is an order of magnitude more complicated than building it.
+There’s a common saying that if you build the most clever system you can think of, you’re by
+definition unqualified to maintain it - and there’s a lot of truth to it.</p>
+<div class="section" id="why-not-kubernetes">
+<h2>Why not Kubernetes?<a class="headerlink" href="#why-not-kubernetes" title="Permalink to this headline">¶</a></h2>
+<p>We’ve heard about many validators who plan to use Kubernetes for their production setups.</p>
+<p>We strongly recommend against the use of Kubernetes and similar technologies for
+your core validator operations - they solve problems validator operators don’t have.
+Validator core infrastructure are <strong>pets, not cattle</strong>. You can’t just deploy a cloud instance,
+you need to rent dedicated servers and plug HSMs into them. Even if you’re running an
+active-active setup like ours which tolerate full node outages, you’re unlikely to gain enough
+from Kubernetes to justify its costs.</p>
+<p>Even plain Docker usage should be carefully evaluated - while Docker itself is quite stable, even
+in 2018, the overlay filesystems and namespacing technology it uses haven’t stabilized yet (not
+for lack of trying, but any complicated piece of code in the kernel needs decades to mature;
+people are still finding bugs in ext4 to this day). Any large-scale production user of either
+Docker and Kubernetes will have tales of Docker daemon crashes in production, weird kernel
+issues that required node reboots and scheduler bugs that required them to read the Kubernetes
+source code at 3am in the morning. This is perfectly fine for the kind of stateless
+infrastructure Docker and Kubernetes are designed for - they are built to tolerate single node
+losses, or build systems. In fact, many production deployments can auto-update and reboot
+cluster nodes (like CoreOS/Container Linux does).</p>
+<p>However, none of this applies to core validator infrastructure. cosmos-sdk compiles to a <em>single
+binary</em>, you don’t need Docker to deploy it (it’s quite useful for building it, though).
+You’re not going to need to scale your validator setup up and down across a fleet of thousands of machines.</p>
+<p>Advanced security setups like eBPF seccomp policies, auditing, SELinux policies and just plain
+debugging get a lot easier when there are no kernel namespaces, Docker daemons, runC wrappers and
+overlay filesystems to reason about.</p>
+<p>Both Docker and Kubernetes also add a lot of unnecessary attack surface (properly security
+Kubernetes alone is pretty complicated - it’s a REST API which hands out omnipotent tokens
+which have root access to your nodes - that’s the opposite of <em>defense in depth</em>!).</p>
+<p>Certus One has extensive experience using both Docker, Kubernetes and Red Hat’s
+OpenShift k8s distribution in production and we’re confident that we could pull it off, just
+like we have no doubt that other teams will. However, we’d rather spend our time working
+on security hardening and tooling.</p>
+<p>That being said, we <em>do</em> use Kubernetes for our auxiliary infrastructure like our monitoring
+stack, continous integration, testing setup and various other internal infrastructure needs. It’s
+perfect for that - our monitoring stack in particular consists of many small services talking to
+each other, and Kubernetes is perfect for that. We just don’t want it anywhere where it breaking
+could affect the core of our business - running secure validators.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/brand.png" alt="Logo"/>
+            </a></p><h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Systems Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#why-not-kubernetes">Why not Kubernetes?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="peers.html" title="previous chapter">Tendermint P2P Layer</a></li>
+      <li>Next: <a href="validator_ha.html" title="next chapter">Validator High-Availability</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Certus One GmbH.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/systems.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

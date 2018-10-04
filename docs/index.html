@@ -4,12 +4,20 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Validator Operations Guide &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -22,7 +30,8 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
@@ -76,6 +85,10 @@ GitHub issues for discussion as well as bug reports).</p>
 <li class="toctree-l2"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="systems.html#why-not-kubernetes">Why not Kubernetes?</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="validator_ha.html#single-node-validator">Single Node Validator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="validator_ha.html#active-standby-validator">Active-Standby Validator</a></li>
@@ -124,6 +137,7 @@ GitHub issues for discussion as well as bug reports).</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
@@ -142,14 +156,12 @@ GitHub issues for discussion as well as bug reports).</p>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
-    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -160,7 +172,7 @@ GitHub issues for discussion as well as bug reports).</p>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
