@@ -1,19 +1,36 @@
+==============================
 Building your tools and Cosmos
-##############################
+==============================
 
-Since there is no official source for binary builds of Cosmos, validators and users have to build the node and client themselves.
+Since there is no official source for binary builds of Cosmos, validators
+and users have to build the node and client themselves.
 
-This is *very good* security-wise since trusting another party to provide unaltered binary builds is very dangerous as you cannot
-easily verify whether the build was really built from unmodified source. There have been enough cases of hacked distribution systems [#puush]_
-to make the choice to perform own builds the obvious one.
+This is *very good* security-wise, and we hope it stays this way. Trusting another party to provide
+unaltered binary builds is very dangerous as you cannot easily verify whether the build hasn't been
+backdoored. There have been plenty of cases of compromised supply chains in the past [#puush]_.
 
-*Docker containers*: For docker containers (even with automatic builds) the same rule applies since the repository or owner account could be compromised.
+While Git repositories can also be backdoored, it's a lot harder to do so due to without getting
+caught, since the repo is an immutable, replicated ledger (almost like - hah - a blockchain!) as
+long as the repository is regularly pulled by contributors.
 
-In this chapter we will explain how to perform simple and reproducible builds of Cosmos' gaiad and gaiacli as well as quickly
-patch the programs by maintaining a mirror/fork.
+*Docker containers*: Docker containers (even with automatic builds) are no exception, in fact,
+while Docker support signatures, containers aren't usually signed and Docker does not enforce
+signature verification by default.
+
+In this chapter, we will explain how to perform simple and reproducible builds of Cosmos'
+gaiad and gaiacli as well as to maintain your own patches on top of the upstream sources.
 
 Performing reproducible builds
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Reproducible builds ensure that two parties which build the same binary from the same source will
+get an identical binary. This makes it a lot easier to trust third party binaries, since they can
+be independently verified. It also makes it easier to trust your *own* builds.
+
+Go makes this particularly easy - Go builds are reproducible by default, as long as your build
+environment (including the compiler version and GOPATH) are identical.
+
+By pinning the exact version of each dependency, we can ensure identical build inputs.
 
 .. todo :: Explain why reproducible builds are important and add a simple guide to use the buildscripts
 
@@ -22,26 +39,34 @@ Here you can find example build scripts for reproducible Cosmos builds: `Certus 
 Maintaining a mirror/fork
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to be able to quickly perform patches and check the authenticity of the Cosmos repository we will maintain a remote mirror
-of the source code. This can also turn out to be helpful when GitHub should be down for some reason.
+In order to be able to easily carry patches and check the authenticity of the Cosmos
+repository, we always build from our local mirror of the cosmos-sdk repository (which also comes in
+handy when GitHub is down).
 
-Sometimes it might be necessary for you to apply small patchsets to the Cosmos node for example if you are using a modified
-communication and peer discovery system for your sentry<->validators or you are under attack and don't want to wait until
-the team provides a patch for it since the attack is causing you *monetary damage*.
+Sometimes it might be necessary for you to apply small patchsets to the Cosmos node,
+for features like our custom HSM signer (:doc:`hsm`), modifications to the peer discovery code,
+or emergency bugfixes for exploits that you can't wait for the upstream team to patch because they're
+causing monetary losses *right now*.
 
-All of these scenarios plus many more make it really useful to have a mirror and to have one's buildscripts configured on the said one.
-The plain mirror can simply be turned into a fork in which you have an additional patchset which is always rebased on the new source from the upstream.
+Even if you don't plan to run a Cosmos fork most of the time, you should be prepared to do so
+on a short notice, if necessary.
 
-Generally it is recommend that you don't make modifications to the upstream code and maintain them in a fork if you could also create a PR on the upstream
-project. But if you need to maintain internal modifications try to keep them as small as possible and in places where the code doesn't change often to avoid
-conflicts when rebasing onto upstream changes.
+A plain mirror can simply be turned into a fork by just committing on top of the master,
+and doing rebases against origin/master when there's a new release.
 
-Here you can find a very extensive guide about maintaining a fork: `How to maintain a fork`_
+We don't recommend forking the code base unnecessarily - most of the time, it's much better to
+create a PR against the upstream repository. However, you sometimes need to maintain internal
+modifications - if you do so, try to keep them as small, nonintrosive and self-contained as possible,
+and in places where the code doesn't change often to avoid large merge conflicts when rebasing onto
+upstream master.
 
-For the Cosmos use-case it might also make sense to mirror/fork Tendermint. Then you will need to add a ``[source]`` directive to the ``Gopkg.toml`` and update the
-dep lock which would add the necessity to maintain this change on the Cosmos project. Alternatively you can perform this patch at build time. 
+This article is a great introduction on how to maintain a fork: `How to maintain a fork`_
 
+For the Cosmos use-case, it might also make sense to mirror/fork Tendermint.
+You will need to add a ``[source]`` directive to the ``Gopkg.toml`` in the cosmos-sdk project
+to pull your Tendermint fork, and either commit the modified lockfile to your cosmos-sdk repo
+or do a full `dep ensure` run at build time (not recommended).
 
-.. [#puush] The puush hack for example https://imgur.com/qqjokYm
+.. [#puush] The puush hack, for instance https://imgur.com/qqjokYm
 .. _`How to maintain a fork`: https://rhonabwy.com/2016/04/04/how-to-maintain-a-git-remote-fork/
 .. _`Certus Build scripts`: https://github.com/certusone/buildscripts

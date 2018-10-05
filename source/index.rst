@@ -30,6 +30,12 @@ reference implementations which implement our guidelines.
 This guide assumes practical Linux systems administration experience and at least basic knowledge
 of the Tendermint and Cosmos architecture.
 
+Numerous books have been written about each of the topics in this knowledge base - keep in mind
+that a knowledge base like ours is only ever a starting point and a guide, not an exhaustive
+treatment of any of the topics we're discussing. We took a look at our bookshelves (and e-readers,
+and browser bookmarks) and many articles have a literature list of books and articles
+which we can personally recommend.
+
 The document's source code is available `on GitHub <https://github.com/certusone/kb>`_.
 Contributions and bug reports/feedback are greatly appreciated (feel free to use the
 GitHub issues for discussion as well as bug reports).
@@ -45,6 +51,8 @@ Contents
    monitoring
    peers
    systems
+   security
+   linux_config
    validator_ha
    hsm
    key_management

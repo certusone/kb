@@ -1,16 +1,16 @@
 Key Management
 ==============
 
-For validator operations you need two types of keys in the Cosmos network.
+For validator operations, you need two types of keys in the Cosmos network.
 
 **Validator Key**
-    As discussed in :doc:`hsm` this key is used by your nodes to participate in the consensus.
+    As discussed in :doc:`hsm`, this key is used by your nodes to participate in the Tendermint consensus.
 
 **Account Key**
-    The key for your Cosmos account. This account holds your Validator's balances and claim rights for rewards.
-    This is the account you initially bonded your validator with and can also unbond it with.
+    This key for your Cosmos account. The account holds your validator's balances and claim rights for rewards.
+    This is the account you initially bonded your validator with, and can also unbond it with.
     
-As the handling of the *Validator Key* has already been handled by the above-mentioned article we will now
+As the handling of the *Validator Key* has already been addressed in the HSM article, we will now
 focus on the *Account Key*.
 
 Handling of the Account Key
