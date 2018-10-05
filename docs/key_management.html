@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="HSM for Signing" href="hsm.html" />
-    <link rel="prev" title="Tendermint P2P Layer" href="peers.html" />
+    <link rel="next" title="Testing your tooling" href="testing.html" />
+    <link rel="prev" title="HSM for Signing" href="hsm.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -42,15 +42,15 @@
             
   <div class="section" id="key-management">
 <h1>Key Management<a class="headerlink" href="#key-management" title="Permalink to this headline">¶</a></h1>
-<p>For validator operations you need two types of keys in the Cosmos network.</p>
+<p>For validator operations, you need two types of keys in the Cosmos network.</p>
 <dl class="docutils">
 <dt><strong>Validator Key</strong></dt>
-<dd>As discussed in <a class="reference internal" href="hsm.html"><span class="doc">HSM for Signing</span></a> this key is used by your nodes to participate in the consensus.</dd>
+<dd>As discussed in <a class="reference internal" href="hsm.html"><span class="doc">HSM for Signing</span></a>, this key is used by your nodes to participate in the Tendermint consensus.</dd>
 <dt><strong>Account Key</strong></dt>
-<dd>The key for your Cosmos account. This account holds your Validator’s balances and claim rights for rewards.
-This is the account you initially bonded your validator with and can also unbond it with.</dd>
+<dd>This key for your Cosmos account. The account holds your validator’s balances and claim rights for rewards.
+This is the account you initially bonded your validator with, and can also unbond it with.</dd>
 </dl>
-<p>As the handling of the <em>Validator Key</em> has already been handled by the above-mentioned article we will now
+<p>As the handling of the <em>Validator Key</em> has already been addressed in the HSM article, we will now
 focus on the <em>Account Key</em>.</p>
 <div class="section" id="handling-of-the-account-key">
 <h2>Handling of the Account Key<a class="headerlink" href="#handling-of-the-account-key" title="Permalink to this headline">¶</a></h2>
@@ -116,24 +116,26 @@ Bonding involves large sums of money and should be a manual activity.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="peers.html#sentry-auto-scaling">Sentry-Auto-Scaling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linux_config.html">Linux Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Key Management</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#handling-of-the-account-key">Handling of the Account Key</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
 <li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
-<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="peers.html" title="previous chapter">Tendermint P2P Layer</a></li>
-      <li>Next: <a href="hsm.html" title="next chapter">HSM for Signing</a></li>
+      <li>Previous: <a href="hsm.html" title="previous chapter">HSM for Signing</a></li>
+      <li>Next: <a href="testing.html" title="next chapter">Testing your tooling</a></li>
   </ul></li>
 </ul>
 </div>
@@ -151,6 +153,7 @@ Bonding involves large sums of money and should be a manual activity.</p>
       </div>
       <div class="clearer"></div>
     </div>
+
     <div class="footer">
       &copy;2018, Certus One GmbH.
       
@@ -166,5 +169,15 @@ Bonding involves large sums of money and should be a manual activity.</p>
     
 
     
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127006218-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-127006218-1');
+</script>
+
   </body>
 </html>

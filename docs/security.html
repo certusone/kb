@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>&lt;no title&gt; &#8212; Validator Operations Guide  documentation</title>
+    <title>Security Engineering &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,6 +23,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Linux Best Practices" href="linux_config.html" />
+    <link rel="prev" title="Systems Design" href="systems.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -38,7 +40,85 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  
+  <div class="section" id="security-engineering">
+<h1>Security Engineering<a class="headerlink" href="#security-engineering" title="Permalink to this headline">¶</a></h1>
+<p>Someone once said that, paraphrasing:</p>
+<blockquote>
+<div>While most of systems engineering is about making
+computers do things, security is just about the opposite -
+keep your computers from doing <em>anything else</em>.</div></blockquote>
+<p>While much of the public focus on security engineering is about the low-level technical details -
+finding and exploiting bugs, cryptographic algorithms, code signing, chains of trust, and so on,
+these - while important - are only one piece of the puzzle.</p>
+<p>Some of the hardest parts of security in most companies are actually not of the technical nature
+- from an academic point of view, most everyday security problems are downright boring - but
+making trade-offs, assessing risks, understanding your adversaries, and writing procedures,
+policies and checklists (also boring, both academically and practically).</p>
+<p>Not every company needs a team of world-class security carrying out original research (though
+it certainly helps), but every company needs to understand their risks and plan accordingly.</p>
+<p>That’s not to say that the technology isn’t important - quite the opposite. Validators, in
+particular, operate at a pretty low level, cryptographically speaking, and <em>do</em> need to understand
+the cryptographic primitives that they’re using, especially if they build their own HSM integrations
+and similar pieces of security-critical code. Cutting-edge security technology makes risk mitigation
+much easier and can dramatically reduce costs. However, even the best security technology will fail
+if it’s not supported by a proper business framework.</p>
+<p>Most security failures are not due to clever attackers discovering a complicated timing attack in
+your HMAC algorithm or exfiltrating data by <a class="reference external" href="https://github.com/fulldecent/system-bus-radio">modulating your system bus</a>, but dumb mistakes,
+human error in general and policy failures.</p>
+<p>Remember the Equifax breach? They failed to mitigate a vulnerability that had been publicly known
+for <em>months</em>. Their fancy IDS which detected the breach had been
+turned off because the CSO thought the alerts were too noisy. Those were management failures.</p>
+<p>Unfortunately, this is how most breaches happen, and - barring the occasional smart contract troubles -
+blockchain companies make no exception.</p>
+<p>Most blue team security measures can be (roughly) categorized into these three disciplines:</p>
+<ol class="arabic">
+<li><p class="first"><strong>Prevention</strong> - properly hardening your systems and organization to prevent incidents
+from happening in the first place, just like sturdy walls and secure locks are the best defense
+against burglary, it’s hard to overstate how important proper systems design is for security.
+Most security issues are mundane and easily prevented.</p>
+<p></p>
+</li>
+<li><p class="first"><strong>Detection</strong> - like with a good home alarm system, detecting an incident is the next best
+thing after preventing it. Studies say that the vast majority of attacks go on undetected
+for months until they’re discovered, often due to a mistake on the attacker’s part.</p>
+</li>
+<li><p class="first"><strong>Response</strong> - properly responding to a security incident in an art in itself and can dramatically
+alter the outcome. Compromises are inevitable, and you need to be able to competently deal with
+them as they happen.</p>
+</li>
+</ol>
+<p>The reality is that any sufficiently large network will have some compromised nodes at any given
+time, at the very least due to sheer scale and laws of probability (with a pinch of organizational
+incompetence inherent in large organizations sprinkled on top). It’s a common opinion that
+we have collectively failed at both incident prevention and detection and are now living in the
+age of incident response.</p>
+<p>However, at the scale of a typical validator operation, minimizing risks by achieving excellence
+at all three disciplines is both possible and reasonable. There’s - quite literally - a lot at stake,
+and a single compromise can easily kill a validator company.</p>
+<div class="section" id="single-sign-on-and-2fa">
+<h2>Single Sign On and 2FA<a class="headerlink" href="#single-sign-on-and-2fa" title="Permalink to this headline">¶</a></h2>
+<p>You need a secure single-sign on system. Unless you’re a large company who can afford to run
+and maintain their own SSO system, you should use Google’s GSuite.</p>
+<p>Enforce two-factor authentication for all users. You should use two U2F tokens per user (they’re
+the only kind of 2FA authentication that can’t be phished).</p>
+<p>Do not use SMS authentication - mobile phone providers are [un]surprisingly easy
+to social engineer into sending a replacement SIM card to someone else.</p>
+<p>Shared passwords are evil.</p>
+<p>Only ever use shared passwords as a last resort. Certus One has so far gotten away without
+a single shared password! Many third party suppliers support multiple user accounts - create an
+individual account for each team member.</p>
+<p>Have a company wifi router? Either use WPA2 Enterprise, or treat it like a public hotspot.</p>
+<p>Keep track of all shared passwords and be diligent about changing all of them when a team member
+leaves who had access to them, and deleting accounts at third parties.</p>
+<p>If an application does not support SSO login, much of the time, you can use <a class="reference external" href="https://github.com/bitly/oauth2_proxy">oauth2_proxy</a> or
+<a class="reference external" href="https://github.com/keycloak/keycloak-gatekeeper">keycloak-gatekeeper</a> as authenticating reverse proxies.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">This article is work in progress</p>
+</div>
+</div>
+</div>
+
 
           </div>
         </div>
@@ -49,9 +129,15 @@
               <img class="logo" src="_static/brand.png" alt="Logo"/>
             </a></p><h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Security Engineering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#single-sign-on-and-2fa">Single Sign On and 2FA</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="linux_config.html">Linux Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
@@ -64,6 +150,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="systems.html" title="previous chapter">Systems Design</a></li>
+      <li>Next: <a href="linux_config.html" title="next chapter">Linux Best Practices</a></li>
   </ul></li>
 </ul>
 </div>
@@ -81,6 +169,7 @@
       </div>
       <div class="clearer"></div>
     </div>
+
     <div class="footer">
       &copy;2018, Certus One GmbH.
       
@@ -96,5 +185,15 @@
     
 
     
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127006218-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-127006218-1');
+</script>
+
   </body>
 </html>

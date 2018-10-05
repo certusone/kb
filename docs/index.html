@@ -59,6 +59,11 @@ applicable to operating any highly available, distributed service.</p>
 reference implementations which implement our guidelines.</p>
 <p>This guide assumes practical Linux systems administration experience and at least basic knowledge
 of the Tendermint and Cosmos architecture.</p>
+<p>Numerous books have been written about each of the topics in this knowledge base - keep in mind
+that a knowledge base like ours is only ever a starting point and a guide, not an exhaustive
+treatment of any of the topics we’re discussing. We took a look at our bookshelves (and e-readers,
+and browser bookmarks) and many articles have a literature list of books and articles
+which we can personally recommend.</p>
 <p>The document’s source code is available <a class="reference external" href="https://github.com/certusone/kb">on GitHub</a>.
 Contributions and bug reports/feedback are greatly appreciated (feel free to use the
 GitHub issues for discussion as well as bug reports).</p>
@@ -87,6 +92,22 @@ GitHub issues for discussion as well as bug reports).</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="systems.html#why-not-kubernetes">Why not Kubernetes?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systems.html#network-topology">Network topology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="systems.html#secret-management">Secret management</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security Engineering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="security.html#single-sign-on-and-2fa">Single Sign On and 2FA</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="linux_config.html">Linux Best Practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#configuration-management">Configuration management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#user-authentication">User authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#choice-of-distribution">Choice of distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#custom-software">Custom software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#docker-images">Docker images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#network-time">Network time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linux_config.html#dns-resolvers">DNS resolvers</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a><ul>
@@ -98,6 +119,7 @@ GitHub issues for discussion as well as bug reports).</p>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="hsm.html#why-use-a-hsm">Why use a HSM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hsm.html#hsm-implementations">HSM implementations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hsm.html#how-to-setup-a-cosmos-validator-with-aiakos-yubihsm2-support">How to setup a Cosmos validator with Aiakos YubiHSM2 support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="hsm.html#hsm-hardware">HSM hardware</a></li>
 </ul>
 </li>
@@ -138,6 +160,8 @@ GitHub issues for discussion as well as bug reports).</p>
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="linux_config.html">Linux Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
@@ -168,6 +192,7 @@ GitHub issues for discussion as well as bug reports).</p>
       </div>
       <div class="clearer"></div>
     </div>
+
     <div class="footer">
       &copy;2018, Certus One GmbH.
       
@@ -183,5 +208,15 @@ GitHub issues for discussion as well as bug reports).</p>
     
 
     
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127006218-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-127006218-1');
+</script>
+
   </body>
 </html>

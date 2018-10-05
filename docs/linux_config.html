@@ -1,0 +1,419 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Linux Best Practices &#8212; Validator Operations Guide  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Validator High-Availability" href="validator_ha.html" />
+    <link rel="prev" title="Security Engineering" href="security.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="linux-best-practices">
+<h1>Linux Best Practices<a class="headerlink" href="#linux-best-practices" title="Permalink to this headline">¶</a></h1>
+<p>This article details some basic best practices for Linux server configuration.</p>
+<div class="section" id="configuration-management">
+<h2>Configuration management<a class="headerlink" href="#configuration-management" title="Permalink to this headline">¶</a></h2>
+<p>You should strictly do all systems configuration through config management - it’s a investment
+that pays off almost immediately. Some companies go as far as disabling SSH access, though we
+consider that a bit extreme (you still need SSH login to debug).</p>
+<p>We recommend <a class="reference external" href="https://www.ansible.com/">Ansible</a> for being both simple and powerful - it has a good learning curve, is easy to
+reason about and it’s the <a class="reference external" href="https://trends.google.com/trends/explore?date=all&amp;q=ansible%20download,saltstack%20download,puppet%20download">fastest-growing</a> tool with the largest community.</p>
+<p>There are some systems like Puppet which are more powerful, but also a lot more complicated.
+We’ve seen a pattern in devops team where there’s only a few “Puppet wizards” who know how
+to use it properly, with everyone else avoiding it. Ansible is less sophisticated - its execution
+model is sequential and it has no concept of resources, but it’s also <em>much</em> easier to use.</p>
+<p>This turns out to be a significant advantage, since it greatly lowers the barrier to entry and
+ensure the team is actually using the configuration management tool rather than trying to bypass it
+or getting the team’s resident wizards to implement features for them.</p>
+<p>Red Hat has bought Ansible and is moving many of its products away from Puppet.</p>
+</div>
+<div class="section" id="user-authentication">
+<h2>User authentication<a class="headerlink" href="#user-authentication" title="Permalink to this headline">¶</a></h2>
+<p>Unless you have dozens of users, you should provision a <strong>local user</strong> - including a password -
+for each team member using your favorite configuration management tooling and add the
+users to your sudo group (i.e. <code class="docutils literal"><span class="pre">sudo</span></code> or <code class="docutils literal"><span class="pre">wheel</span></code>, depending on distro).</p>
+<p>Make sure to use a password that’s not re-used for anything else, and only ever put the
+password hash into your config files (seems self-evident to a Linux admin, but did
+you know it’s impossible to set a user’s password hash on Windows?).</p>
+<p>Make sure to use <strong>consistent UIDs in the &gt;70000</strong> range for each user - this prevents
+UID conflicts and consistency across all machines makes
+(make sure your UID range is outside of what is configured in <code class="docutils literal"><span class="pre">/etc/login.defs</span></code>).</p>
+<p>You need to treat each individual user like a root user - if the account were to be compromised,
+it would be trivial to escalate these privileges by adding a LD_PRELOAD backdoor (or similar)
+and waiting until the next time the user uses sudo.</p>
+<p>Then, disable the root user’s password by setting an invalid password hash (usually <code class="docutils literal"><span class="pre">NP</span></code>).</p>
+<p>This has a number of advantages:</p>
+<ul class="simple">
+<li>It’s a lot easier to audit each individual user’s actions on the server (see auditing section
+in the security article). auditd can associate SSH keys to user sessions, but that takes some
+work and isn’t 100% accurate. The user’s login/audit UID (<code class="docutils literal"><span class="pre">auid</span></code>) will be carried along
+through sudo and su invocations.</li>
+<li>You can have your configuration management tool log into the server using its own user account,
+allowing you to easily filter out audit events caused by deployment.</li>
+<li>Users can log into a server’s local console using their own password.</li>
+<li>If a team member leaves, you don’t need to change a shared root password.</li>
+</ul>
+<p>If you have many different users, the overhead of adding local users on each machine will become
+notable and you might want to look into using something like <a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system-level_authentication_guide/sssd">sssd</a>, though that will introduce
+additional complexity - how to ensure that you can still log into servers without network?</p>
+<div class="section" id="ssh-authentication">
+<h3>SSH authentication<a class="headerlink" href="#ssh-authentication" title="Permalink to this headline">¶</a></h3>
+<p>Make sure to use public key authentication, and only public key authentication.</p>
+<p>Have a redundant set of bastion/VPN hosts and restrict SSH access to these hosts
+(along with any other potentially dangerous services). Don’t use SSH agent forwarding for
+your bastion host, instead, forward SSH sessions <em>through</em> the bastian host using  plain
+OpenVPN, sshuttle or a <code class="docutils literal"><span class="pre">ProxyCommand</span></code> ssh_config directive.</p>
+<p>If your team is large, you probably want to use something like <a class="reference external" href="https://github.com/gravitational/teleport">Teleport</a> to tie SSH authentication
+and auditing into your existing, two-factor-secured single-sign-on solution.</p>
+<p>However, if your team is small, just hand everyone two <a class="reference external" href="https://www.yubico.com/product/yubikey-4-series/">YubiKey 4</a> tokens and use their OpenPGP
+feature for SSH authentication. Never use plain local SSH keys - they’re too easy to steal, and
+an attacker who has sufficient access to steal your keys can likely keylog the passphrase.
+They’re so cheap that there’s little excuse for not using them :-)</p>
+<p>Don’t use fail2ban (it’s pointless with key auth and adds additional attack surface; Chinese
+bots shouldn’t be able to talk to your SSH service to begin with).</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">How to use a YubiKey 4 for SSH authentication</p>
+</div>
+</div>
+</div>
+<div class="section" id="choice-of-distribution">
+<h2>Choice of distribution<a class="headerlink" href="#choice-of-distribution" title="Permalink to this headline">¶</a></h2>
+<p>We recommend <strong>Red Hat Enterprise Linux</strong> (RHEL), <strong>CentOS</strong> or <strong>Debian</strong>, in that order.</p>
+<p>Red Hat’s quality assurance is the best in the industry - they are very diligent about
+release notes and backwards compatibility within a major release.</p>
+<p>They have an in-house kernel engineering team and are good at making sure their kernel works well
+on enterprise bare-metal server hardware. When the Spectre/Meltdown vulnerabilities hit, not
+only did they have a functional patch on day one, but they managed to develop it in-house
+despite not being able to discuss it with the Linux kernel community (due to a severely mismanaged
+vulnerability disclosure process).</p>
+<p>Red Hat is generally the fastest to respond to security vulnerabilities and has writeups
+detailing impact, workarounds and available patches.</p>
+<p>Red Hat’s support is top notch (once you get past the first level), and has direct access to Red
+Hat’s engineers. Needless to say, this is very valuable.</p>
+<p>Licensing is a hassle, but we recommend buying RHEL support if you can affort it - at least for
+your critical hosts (no, we’re not getting any sales commissions ;-)).</p>
+<p><a class="reference external" href="https://www.centos.org/">CentOS</a> is the community edition of RHEL. It used to be a separate project, but has since been
+assimilated by Red Hat. Due to the cooperation between Red Hat and CentOS, it barely lags behind
+the upstream releases. You don’t get any support, lesser assurances as far as supply-chain
+security goes and the packages have no security metadata (so you can’t set it to auto-install
+security updates, but you should have a proper patch management procedure, anyway), but it’s
+otherwise identical to RHEL.</p>
+<p>RHEL and CentOS have <a class="reference external" href="https://access.redhat.com/support/policy/updates/errata">very long support periods</a> of more than ten years - RHEL 6, released in 2010, is
+getting updates until 2024.</p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/Debian">Debian</a> is <em>the</em> community server linux distribution and the other pole of the RPM/DEB ecosystem
+split. While it has a number of corporate sponsors nowadays - companies which use Debian and
+support it -  it’s a volunteer-driven community project at its core, developed entirely in the
+open. The project is community-run, has a mature governance model and community manifesto, is
+independent of any single company, and - naturally - much less subject to corporate agendas than
+other distributions. It’s a conservative, slow-moving distribution just like RHEL.</p>
+<p>Security updates are usually fast, but depend a lot on individual maintainers and whether or not
+a particular issue is being handled by their security team. We’ve seen situations where less
+widely used packages with known security issues weren’t updated since its maintainer was
+unreachable, so be prepared to package and deploy your own security fixes (this applies to any
+distro - you should be able to build and sign your own packages).</p>
+<p><a class="reference external" href="https://wiki.debian.org/DebianReleases">Debian releases</a> are more frequent than RHEL and are only supported for 2-3 years, with the
+<a class="reference external" href="https://wiki.debian.org/LTS/">Debian LTS</a> project continuing support for two more years.</p>
+<p>Debian has good QA and is a very solid choice, especially if you have team members who have a lot
+of experience with Debian-based distributions like Ubuntu, and none with RPM. Don’t expect it to
+be as polished as RHEL. Many things which work “out of the box” in RHEL are harder on Debian,
+especially enterprise features like auditing.</p>
+<div class="section" id="why-not-ubuntu">
+<h3>Why not Ubuntu?<a class="headerlink" href="#why-not-ubuntu" title="Permalink to this headline">¶</a></h3>
+<p>We do not recommend Ubuntu for production, especially if you’re going to run on it bare metal
+hardware. Ubuntu is a very common choice for devops teams, especially startups, so we’ll elaborate
+a little to explain why.</p>
+<p>We have had bad experiences with their quality assurance and have seen things breaking
+horribly in LTS releases. They’re still doing a great job, considering that they’re a much
+smaller company than Red Hat, but it’s not at the same level. Often, relatively simple bugs take
+years to fix.</p>
+<p>Canonical also has a habit of building their own solutions without ensuring backing of the wider
+Linux community. Those solutions then fail to be adopted by the community.</p>
+<p>This is a hit and miss strategy, and they often miss, leaving their customers scrambling to
+migrate to whatever the community settled on.</p>
+<p>This happened multiple times in the recent past:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/Eucalyptus_(software)">Eucalyptus</a> was shelved in favor of <a class="reference external" href="https://en.wikipedia.org/wiki/OpenStack">OpenStack</a>.</li>
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/GNU_Bazaar">Bazaar</a> - though some people still swear by it - was superseded by Git.</li>
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/Upstart">Upstart</a> ended up being abandoned in favor of <a class="reference external" href="https://en.wikipedia.org/wiki/Systemd">systemd</a> (Ubuntu users had to first migrate
+to Upstart, then migrate <em>again</em> to systemd - wasn’t fun!).</li>
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/Unity_(user_interface)">Unity</a> was abandoned for <a class="reference external" href="https://en.wikipedia.org/wiki/GNOME_Shell">Gnome 3</a>.</li>
+<li>Ubuntu 14.04 LTS wasn’t released with the stable Linux kernel release at the time, but they
+chose to maintain their own stable kernel.</li>
+<li>The <a class="reference external" href="https://en.wikipedia.org/wiki/Mir_(software)">Mir</a> display server did not gain adoption and was replaced by <a class="reference external" href="https://en.wikipedia.org/wiki/Wayland_(display_server_protocol)">Wayland</a>.</li>
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/Ubuntu_One">Ubuntu One</a> and <a class="reference external" href="https://en.wikipedia.org/wiki/Ubuntu_Touch">Ubuntu Phone</a> were discontinued.</li>
+<li><a class="reference external" href="https://en.wikipedia.org/wiki/Juju_(software)">Juju</a> is basically unheard of outside the Ubuntu ecosystem, and will probably become irrelevant
+with the adoption of Kubernetes and Ansible. It’s also pretty crude (basically, a
+stateful collection of bash scripts) compared to something like Helm charts.</li>
+</ul>
+<p>It’s a shame some of these didn’t work out and hopefully they <a class="reference external" href="https://blog.ubuntu.com/2017/04/05/growing-ubuntu-for-cloud-and-iot-rather-than-phone-and-convergence">they learnt from it</a> - the
+ecosystem would greatly benefit from better collaboration between Canonical and Red Hat.</p>
+<p>The latest case is <a class="reference external" href="https://snapcraft.io/">Snappy</a> vs <a class="reference external" href="https://flatpak.org/">Flatpak</a> - right now, Snappy has a larger user base and
+commercial backing, but Flatpak is technically superior with OSTree, Portals and Wayland
+integration, focusing on deep integration with desktop applications, whereas Snappy is trying to be
+a general-purpose packaging mechanism, with an unclear relationship with Docker (which, for
+better or worse, is on track to become the actual general-purpose packaging mechanism).</p>
+<p>Part of the issue is that Canonical often fails to engage the community or doesn’t wait for
+community consensus. Their <a class="reference external" href="https://en.wikipedia.org/wiki/Contributor_License_Agreement">CLA</a> adds a lot of friction and their Launchpad platform has bad
+usability compared to modern platforms, while many Red Hat projects are developed on GitHub,
+which people are more familiar with (they also <a class="reference external" href="https://blog.openshift.com/keep-calm-and-merge-on-lowering-barriers-to-open-source-contributions-with-apache-v2/">have no CLA</a> for most projects).</p>
+<p>That being said, the positive influence of Ubuntu Desktop on the desktop Linux ecosystem is hard
+to overstate. They were the first distribution to popularize desktop Linux and did a lot of
+hardware compatibility and user experience work. For the longest time, Ubuntu was the only
+major distribution which had acceptable font rendering out-of-the box. It’s the only popular
+desktop Linux distribution that offers long-term support.</p>
+</div>
+<div class="section" id="applications-vs-os-divide">
+<h3>Applications vs OS divide<a class="headerlink" href="#applications-vs-os-divide" title="Permalink to this headline">¶</a></h3>
+<p>One common pain point with conservative distributions like Debian and RHEL is their slow pace -
+LTS distributions make promises of backwards compatibility, and any major upgrades within a major
+release are hard-to-impossible without breaking compatibility.</p>
+<p>For example, RHEL has - to many people’s surprise - been rebased on a newer OpenSSL release in 7
+.4 in order to to enable HTTP/2. They had to rebuild half of all packages that depended on
+OpenSSL, which was a massive effort, and test them all to ensure they all were still working, and
+the only reason this was possible to begin with was that OpenSSL itself didn’t break
+backwards compatibility or change their API.</p>
+<p>Having a slow-moving, rock-solid operating system is critical for production, however, it’s
+painful for development. For this reason, we believe that attempts to develop and deploy
+applications against the distribution’s runtime and library are misguided (with the obvious
+exception of systems software which is part of the distribution). It’s impossible to reconcile
+the stability requirements of the operations side with developer’s need for the latest and greatest
+programming languages and libraries, both of which are reasonable.</p>
+<p>The right solution is to <strong>completely separate application runtime and operating system</strong>.
+A best example of this approach is Golang - Go binaries have no userland dependencies except for
+minimal usage of libc, and even that can be disabled. This also applies to the Go compiler -
+you can download the latest Go compiler and run it on any Linux kernel &gt;2.6.23.</p>
+<p>The same thing is possible with any other language runtime.</p>
+<p>Docker makes this even easier - containers ship their own userspace with minimal interaction
+with the host OS (mostly through the kernel). You can run a rock-solid host OS, while running
+Fedora or Ubuntu containers with the latest and greatest</p>
+</div>
+</div>
+<div class="section" id="custom-software">
+<h2>Custom software<a class="headerlink" href="#custom-software" title="Permalink to this headline">¶</a></h2>
+<p>Try to <strong>stick with your Linux disto repositories</strong>. Your Linux distro takes care of reviewing
+and maintaining the software, a tasks that would otherwise fall on you.</p>
+<p>If you need custom software outside of your distro’s repositories (and you will, sooner or later),
+do not install it manually/using <em>make install</em>. Ideally, you wouldn’t even have compilers on your
+production systems! Rather, <strong>build custom packages</strong> or Docker containers (whatever you’re more
+comfortable with - building DEB and RPM packages can be intimidating)</p>
+<p>If you’re familiar with it, Certus One recommends a custom DEB/RPM package repository and signing
+infrastructure since it allows you to rebuild and deploy core packages, and doesn’t require any
+extra dependencies on your nodes. However, there’s nothing wrong with standardizing on Docker
+builds, especially if your team is familiar with Docker and you’re using it anyway, so you can
+avoid maintaining two separate build pipelines and delivery methods.</p>
+<p>You also need to keep track of all custom software you use in a <strong>software library</strong> - this can be
+as simple as a spreadsheet or internal Wiki page, but it’s crucial to have.</p>
+<p>The software library should list, at the very least:</p>
+<ul class="simple">
+<li>The software’s author and source.</li>
+<li>The team member who is the internal “package maintainer”.</li>
+<li>Instructions for building the package.</li>
+<li>A mailing list or comparable channel for <strong>security bulletins</strong> - since your distro isn’t going
+to look out for security vulnerabilities, you will have to do so yourself.</li>
+</ul>
+<p>Having processes for maintaining and patching custom packages is very important -
+they are easily forgotten about.</p>
+</div>
+<div class="section" id="docker-images">
+<h2>Docker images<a class="headerlink" href="#docker-images" title="Permalink to this headline">¶</a></h2>
+<p><strong>Build all Docker images from scratch</strong>. We strongly recommend against using pre-built Docker
+images in production, for multiple reasons:</p>
+<ul class="simple">
+<li>Experience shows that you’ll sooner or later need to modify the Docker containers you use,
+and you should be prepared by having a proper build .</li>
+</ul>
+<p>Certus One uses the OpenShift/<a class="reference external" href="https://www.okd.io/">okd</a> build system and registry for container builds.</p>
+<p>If you build your own images, try to use the same operating system base image than your host OS,
+or at least the same operating system family (i.e. Fedora on CentOS, more recent Ubuntu releases
+on Ubuntu LTS). This makes it a lot easier for your team to debug containers since they’ll be
+familiar with the operating system, and it avoids introducing additional security dependencies.</p>
+</div>
+<div class="section" id="network-time">
+<h2>Network time<a class="headerlink" href="#network-time" title="Permalink to this headline">¶</a></h2>
+<p>We recommend using chronyd, a modern (and safer) alternative to ntpd.
+Many Linux distributions come with chronyd as the default. Do not use systemd-timedated - it’s
+great for</p>
+<p>Time-keeping is extremely important for any modern protocol. Some databases like <a class="reference external" href="https://www.cockroachlabs.com/">CockroachDB</a>
+even rely on nanosecond-precision timestamps for global transaction ordering
+(and therefore consistency).</p>
+<p>If you can, configure each data center’s local time servers as preferred peers. Many high-end
+data centers will even have a local stratum This protects you
+against outside NTP</p>
+<p>In case you run a database like CockroachDB, having a high-accuracy local time source is crucial.</p>
+</div>
+<div class="section" id="dns-resolvers">
+<h2>DNS resolvers<a class="headerlink" href="#dns-resolvers" title="Permalink to this headline">¶</a></h2>
+<p>Keep in mind that Linux has no DNS caching - it consults the resolver configured in <code class="docutils literal"><span class="pre">/etc/resolv.conf</span></code>
+on each lookup. Depending on the amount of lookups your application does, this can be really expensive.
+You need to ensure that you either:</p>
+<ul class="simple">
+<li>..have a resolver very close in your local network (&lt;1ms)</li>
+<li>..or run a caching stub resolver on each host.</li>
+</ul>
+<p>If you have a local resolver, use that. Any cloud or datacenter provider will have local
+resolvers, and it’s one less thing you need to care about and deal with when it breaks.</p>
+<p>However, if you do a lot of DNS queries or need DNSSEC validation, or your local resolver is
+untrustworthy/unreliable, by all means, run a local forwarding resolver on each node
+and familiarize yourself with it.</p>
+<p>Here’s some common choices:</p>
+<dl class="docutils">
+<dt><strong>nscd</strong></dt>
+<dd><p class="first">nscd is a generic caching daemon not only for DNS, but any <a class="reference external" href="https://en.wikipedia.org/wiki/Name_Service_Switch">NSS</a> names,
+including local users and groups. It’s present on most system, though seldom enabled by default.
+We do not recommend to use it, and to disable its DNS caching if you do use it for other reasons.</p>
+<p>It has very simplistic positive and negative caches, disregards the DNS TTL and many other parts
+of the DNS RFCs and likes to treat lookup failures as negative responses and cache them,
+resulting in hard-to-debug issues.</p>
+<p class="last">We don’t recommend its use. If you need NSS caching, use the modern <a class="reference external" href="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system-level_authentication_guide/sssd">sssd</a> instead.</p>
+</dd>
+<dt><strong>systemd-resolved</strong></dt>
+<dd><p class="first">systemd-resolved does more than just manage <cite>/etc/resolv.conf</cite> - it also has its own NSS
+resolver implementation, <cite>nss-resolve</cite>. You can think of it as an advanced nscd that
+understands DNS TTLs and DNSSEC, but has little customization or security features on top of that.</p>
+<p>In particular, it’s designed as a <em>stub resolver</em> that forwards to a real resolver in the same
+network, and is not particularly resistant against network-level attacks. In particular, they
+do not employ source port randomization (which makes it easier to race against the reply from
+the upstream resolver) or bother validating certificates with DNS-over-TLS.</p>
+<p class="last">We recommend systemd-resolved if all you need it caching and DNSSEC validation, and want to
+avoid pulling in an extra dependency like dnsmasq, and your risk model excludes or accepts
+attackers in the local network (as a validator, it probably doesn’t, and you might not want to use resolved).</p>
+</dd>
+<dt><strong>dnsmasq</strong></dt>
+<dd><p class="first"><a class="reference external" href="http://www.thekelleys.org.uk/dnsmasq/doc.html">dnsmasq</a> is the most commonly used forwarding resolver (and DHCP server - make sure to disable that!).
+It’s well-audited, standards-compliant, DNSSEC-validating and has none of the drawbacks that
+systemd-resolved has, though it’s “just” a local resolver without fancy NSS integration.</p>
+<p class="last">We recommend dnsmasq.</p>
+</dd>
+<dt><strong>unbound</strong></dt>
+<dd><a class="reference external" href="https://www.nlnetlabs.nl/projects/unbound/about/">Unbound</a> is a full recursive DNSSEC-validating resolver which is able resolve domains by itself
+(by querying the root zone), without forwarding to a higher-tier resolver. While you can use it
+as a forwarding resolver, there’s little point in doing so. However, if you <em>do</em> want to run a full
+resolver, Unbound is what we recommend.</dd>
+</dl>
+<div class="section" id="dns-over-tls">
+<h3>DNS-over-TLS<a class="headerlink" href="#dns-over-tls" title="Permalink to this headline">¶</a></h3>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Coming soon</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/brand.png" alt="Logo"/>
+            </a></p><h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="systems.html">Systems Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="security.html">Security Engineering</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Linux Best Practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-management">Configuration management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#user-authentication">User authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choice-of-distribution">Choice of distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-software">Custom software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker-images">Docker images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#network-time">Network time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dns-resolvers">DNS resolvers</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="validator_ha.html">Validator High-Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hsm.html">HSM for Signing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="key_management.html">Key Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing your tooling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building your tools and Cosmos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="business_continuity.html">Business Continuity</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="security.html" title="previous chapter">Security Engineering</a></li>
+      <li>Next: <a href="validator_ha.html" title="next chapter">Validator High-Availability</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+      &copy;2018, Certus One GmbH.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/linux_config.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127006218-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-127006218-1');
+</script>
+
+  </body>
+</html>
