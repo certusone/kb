@@ -93,6 +93,15 @@ html_theme = 'alabaster'
 #
 # html_theme_options = {}
 
+html_theme_options = {
+  'logo': 'brand.png',
+  'description': '<a href="https://certus.one">Back to our main page</a>',
+#  'fixed_sidebar': True,
+#  'github_user': 'certusone',
+#  'github_repo': 'kb',
+#  'github_type': 'follow',
+}
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -112,15 +121,16 @@ html_static_path = ['_static']
 
 html_sidebars = {
     '**': [
-      #  'about.html',
+        'about.html',
+        'github.html',
         'navigation.html',
         'relations.html',
+        'contact.html',
         'searchbox.html',
-        'donate.html',
     ]
 }
 
-html_logo = "_static/brand.png"
+#html_logo = "_static/brand.png"
 
 
 # -- Options for HTMLHelp output ------------------------------------------

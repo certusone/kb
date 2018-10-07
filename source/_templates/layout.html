@@ -1,15 +1,28 @@
 {% extends "!layout.html" %}
 
 
-{% block footer %}
+{% block extrahead %}
 {{ super() }}
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-127006218-1"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-127006218-1"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-    gtag('config', 'UA-127006218-1');
-</script>
+      gtag('config', 'UA-127006218-1');
+  </script>
+
+  <!-- GitHub Star button -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  <!-- Custom CSS -->
+  <style type="text/css">
+    .contact-us {
+      padding: .5em;
+      margin: 1em 0;
+      text-align: center;
+      border: 1px dotted #8ECC4C;
+    }
+  </style>
 {% endblock %}
