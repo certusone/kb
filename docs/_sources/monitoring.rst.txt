@@ -72,7 +72,7 @@ soon - like "this disk *will* up in 30 minutes, and it *will* take down our serv
 Low-Severity Alerts
 -------------------
 
-There are many conditions that need to be taken of, just not *immediately*. Your redundant database
+There are many conditions that need to be taken care of, just not *immediately*. Your redundant database
 server went down and nobody got paged - great! But, you still need someone to fix that database
 server, or clean up the log partition that will soon fill up, or refill your coffee maker (you're
 monitoring your coffee maker, right? It's critical infrastructure!).

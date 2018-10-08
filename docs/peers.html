@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Tendermint P2P Layer &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -55,8 +47,7 @@
     }
   </style>
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -67,7 +58,7 @@
   <div class="section" id="tendermint-p2p-layer">
 <h1>Tendermint P2P Layer<a class="headerlink" href="#tendermint-p2p-layer" title="Permalink to this headline">¶</a></h1>
 <p>This article explains the Tendermint P2P Layer and many of its gotchas.
-Understanding the P2P Layer has been very important us, since it has important
+Understanding the P2P Layer has been very important to us, since it has important
 systems architecture implications.</p>
 <div class="section" id="intro">
 <h2>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h2>
@@ -75,8 +66,8 @@ systems architecture implications.</p>
 concept.</p>
 <div class="section" id="types-of-peers">
 <h3>Types of peers<a class="headerlink" href="#types-of-peers" title="Permalink to this headline">¶</a></h3>
-<p>Each node in the network is configured to dial a set of <code class="docutils literal"><span class="pre">seed</span></code> and
-<code class="docutils literal"><span class="pre">persistentPeers</span></code> when it is first started. Both of these parameters
+<p>Each node in the network is configured to dial a set of <code class="docutils literal notranslate"><span class="pre">seed</span></code> and
+<code class="docutils literal notranslate"><span class="pre">persistentPeers</span></code> when it is first started. Both of these parameters
 can be set in the config.</p>
 <dl class="docutils">
 <dt><strong>Persistent peers</strong></dt>
@@ -119,7 +110,7 @@ is marked as bad and removed from the addressbook.</p>
 <dd>Every connection that was initiated by another peer
 which contacted our node from the outside is called an inbound
 connection. The number of maximum inbound connections can be specified
-with <code class="docutils literal"><span class="pre">max_num_inbound_peers</span></code>. In order for another peer to create a
+with <code class="docutils literal notranslate"><span class="pre">max_num_inbound_peers</span></code>. In order for another peer to create a
 connection to our node our P2P port (26656 by default) has to be
 publicly exposed.</dd>
 <dt><strong>Outbound connection</strong></dt>
@@ -141,12 +132,12 @@ exchange) reactor will execute the following loop regularly.</p>
 <h4>Startup<a class="headerlink" href="#startup" title="Permalink to this headline">¶</a></h4>
 <p>The node will check its addressbook for valid peers to connect to and
 connect to all of the persistent peers specified. If the addressbook is
-empty, it will try to connect to one of the specified nodes.</p>
+empty, it will try to connect to one of the specified seed nodes.</p>
 </div>
 <div class="section" id="loop">
 <h4>Loop<a class="headerlink" href="#loop" title="Permalink to this headline">¶</a></h4>
 <p>In the peer exchange routine the node will try to connect to new nodes
-from its addressbook until it has reached the <code class="docutils literal"><span class="pre">max_num_outbound_peers</span></code>
+from its addressbook until it has reached the <code class="docutils literal notranslate"><span class="pre">max_num_outbound_peers</span></code>
 (as of tendermint commit <a class="reference external" href="https://github.com/tendermint/tendermint/commit/6fad8eaf5a7d82000c3f2933ec61e0f3917d07cf">6fad8eaf5</a>).</p>
 <p>It will also query a random peer for its addressbook if the addressbook
 of itself is not yet “full” (currently 1000 entries).</p>
@@ -242,7 +233,7 @@ both in- and outbound traffic on the relevant port (26656 by default).</p>
 is higher. However, this configuration allows new peers to establish
 connections with them and thereby increases the overall network’s resilience.</p>
 <p>You should run most of your sentries as “full-duplex” nodes.</p>
-<p>Please keep in mind to set your number pf maximum inbound peers in the config
+<p>Please keep in mind to set your number of maximum inbound peers in the config
 file to an appropriate value to get a better view of the network.</p>
 </div>
 <div class="section" id="private-nodes">
@@ -268,11 +259,9 @@ nodes (IPs) to the internet.</p>
 providers) or actual private network that is disconnected from the internet our Sentries
 basically build a <em>proxy</em> layer between this network and the public internet / cosmos network.</p>
 <p><em>Sentry</em> nodes are full cosmos nodes whose only task it is to relay messages and blocks to the validator nodes.</p>
-<dl class="docutils">
-<dt>This is done by assigning the Sentry nodes both a public and private interface and hardcoding the</dt>
-<dd>validator nodes as persistent peers. The PEX reactor is limited in a way to not broadcast the</dd>
-</dl>
-<p>validator nodes to the other public peers in the network.</p>
+<p>This is done by assigning the Sentry nodes both a public and private interface and hardcoding the
+validator nodes as persistent peers. The PEX reactor is limited in a way to not broadcast the
+validator nodes to the other public peers in the network.</p>
 <p>As a result no network participant will ever have a direct connection with one of our validator
 nodes and will therefore also not be able to DDoS these directly. The Sentry nodes form a
 shielding layer and are not limited in their number since they only act as a proxy and have no
@@ -376,7 +365,6 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
 
 <a class="github-button" href="https://github.com/certusone/kb" data-icon="octicon-star" data-size="large" aria-label="Star certusone/kb on GitHub">Star certusone/kb</a>
 <br><h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tendermint P2P Layer</a><ul>
@@ -412,12 +400,14 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -428,7 +418,7 @@ building a less effective, but complex cloud autoscaling mechanism.</p>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
