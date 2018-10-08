@@ -4,20 +4,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Linux Best Practices &#8212; Validator Operations Guide  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -55,8 +47,7 @@
     }
   </style>
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -87,22 +78,22 @@ or getting the team’s resident wizards to implement features for them.</p>
 <h2>User authentication<a class="headerlink" href="#user-authentication" title="Permalink to this headline">¶</a></h2>
 <p>Unless you have dozens of users, you should provision a <strong>local user</strong> - including a password -
 for each team member using your favorite configuration management tooling and add the
-users to your sudo group (i.e. <code class="docutils literal"><span class="pre">sudo</span></code> or <code class="docutils literal"><span class="pre">wheel</span></code>, depending on distro).</p>
+users to your sudo group (i.e. <code class="docutils literal notranslate"><span class="pre">sudo</span></code> or <code class="docutils literal notranslate"><span class="pre">wheel</span></code>, depending on distro).</p>
 <p>Make sure to use a password that’s not re-used for anything else, and only ever put the
 password hash into your config files (seems self-evident to a Linux admin, but did
 you know it’s impossible to set a user’s password hash on Windows?).</p>
 <p>Make sure to use <strong>consistent UIDs in the &gt;70000</strong> range for each user - this prevents
 UID conflicts and consistency across all machines makes
-(make sure your UID range is outside of what is configured in <code class="docutils literal"><span class="pre">/etc/login.defs</span></code>).</p>
+(make sure your UID range is outside of what is configured in <code class="docutils literal notranslate"><span class="pre">/etc/login.defs</span></code>).</p>
 <p>You need to treat each individual user like a root user - if the account were to be compromised,
 it would be trivial to escalate these privileges by adding a LD_PRELOAD backdoor (or similar)
 and waiting until the next time the user uses sudo.</p>
-<p>Then, disable the root user’s password by setting an invalid password hash (usually <code class="docutils literal"><span class="pre">NP</span></code>).</p>
+<p>Then, disable the root user’s password by setting an invalid password hash (usually <code class="docutils literal notranslate"><span class="pre">NP</span></code>).</p>
 <p>This has a number of advantages:</p>
 <ul class="simple">
 <li>It’s a lot easier to audit each individual user’s actions on the server (see auditing section
 in the security article). auditd can associate SSH keys to user sessions, but that takes some
-work and isn’t 100% accurate. The user’s login/audit UID (<code class="docutils literal"><span class="pre">auid</span></code>) will be carried along
+work and isn’t 100% accurate. The user’s login/audit UID (<code class="docutils literal notranslate"><span class="pre">auid</span></code>) will be carried along
 through sudo and su invocations.</li>
 <li>You can have your configuration management tool log into the server using its own user account,
 allowing you to easily filter out audit events caused by deployment.</li>
@@ -117,8 +108,8 @@ additional complexity - how to ensure that you can still log into servers withou
 <p>Make sure to use public key authentication, and only public key authentication.</p>
 <p>Have a redundant set of bastion/VPN hosts and restrict SSH access to these hosts
 (along with any other potentially dangerous services). Don’t use SSH agent forwarding for
-your bastion host, instead, forward SSH sessions <em>through</em> the bastian host using  plain
-OpenVPN, sshuttle or a <code class="docutils literal"><span class="pre">ProxyCommand</span></code> ssh_config directive.</p>
+your bastion host, instead, forward SSH sessions <em>through</em> the bastion host using plain
+OpenVPN, sshuttle or a <code class="docutils literal notranslate"><span class="pre">ProxyCommand</span></code> ssh_config directive.</p>
 <p>If your team is large, you probably want to use something like <a class="reference external" href="https://github.com/gravitational/teleport">Teleport</a> to tie SSH authentication
 and auditing into your existing, two-factor-secured single-sign-on solution.</p>
 <p>However, if your team is small, just hand everyone two <a class="reference external" href="https://www.yubico.com/product/yubikey-4-series/">YubiKey 4</a> tokens and use their OpenPGP
@@ -280,7 +271,7 @@ images in production, for multiple reasons:</p>
 and you should be prepared by having a proper build .</li>
 </ul>
 <p>Certus One uses the OpenShift/<a class="reference external" href="https://www.okd.io/">okd</a> build system and registry for container builds.</p>
-<p>If you build your own images, try to use the same operating system base image than your host OS,
+<p>If you build your own images, try to use the same operating system base image as your host OS,
 or at least the same operating system family (i.e. Fedora on CentOS, more recent Ubuntu releases
 on Ubuntu LTS). This makes it a lot easier for your team to debug containers since they’ll be
 familiar with the operating system, and it avoids introducing additional security dependencies.</p>
@@ -300,7 +291,7 @@ against outside NTP</p>
 </div>
 <div class="section" id="dns-resolvers">
 <h2>DNS resolvers<a class="headerlink" href="#dns-resolvers" title="Permalink to this headline">¶</a></h2>
-<p>Keep in mind that Linux has no DNS caching - it consults the resolver configured in <code class="docutils literal"><span class="pre">/etc/resolv.conf</span></code>
+<p>Keep in mind that Linux has no DNS caching - it consults the resolver configured in <code class="docutils literal notranslate"><span class="pre">/etc/resolv.conf</span></code>
 on each lookup. Depending on the amount of lookups your application does, this can be really expensive.
 You need to ensure that you either:</p>
 <ul class="simple">
@@ -316,7 +307,7 @@ and familiarize yourself with it.</p>
 <dl class="docutils">
 <dt><strong>nscd</strong></dt>
 <dd><p class="first">nscd is a generic caching daemon not only for DNS, but any <a class="reference external" href="https://en.wikipedia.org/wiki/Name_Service_Switch">NSS</a> names,
-including local users and groups. It’s present on most system, though seldom enabled by default.
+including local users and groups. It’s present on most systems, though seldom enabled by default.
 We do not recommend to use it, and to disable its DNS caching if you do use it for other reasons.</p>
 <p>It has very simplistic positive and negative caches, disregards the DNS TTL and many other parts
 of the DNS RFCs and likes to treat lookup failures as negative responses and cache them,
@@ -381,7 +372,6 @@ resolver, Unbound is what we recommend.</dd>
 
 <a class="github-button" href="https://github.com/certusone/kb" data-icon="octicon-star" data-size="large" aria-label="Star certusone/kb on GitHub">Star certusone/kb</a>
 <br><h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="monitoring.html">Monitoring, Alerting and Instrumentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="peers.html">Tendermint P2P Layer</a></li>
@@ -419,12 +409,14 @@ resolver, Unbound is what we recommend.</dd>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -435,7 +427,7 @@ resolver, Unbound is what we recommend.</dd>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.6</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |

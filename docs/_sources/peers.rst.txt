@@ -2,7 +2,7 @@ Tendermint P2P Layer
 ====================
 
 This article explains the Tendermint P2P Layer and many of its gotchas.
-Understanding the P2P Layer has been very important us, since it has important
+Understanding the P2P Layer has been very important to us, since it has important
 systems architecture implications.
 
 Intro
@@ -85,7 +85,7 @@ Startup
 
 The node will check its addressbook for valid peers to connect to and
 connect to all of the persistent peers specified. If the addressbook is
-empty, it will try to connect to one of the specified nodes.
+empty, it will try to connect to one of the specified seed nodes.
 
 Loop
 ^^^^
@@ -204,7 +204,7 @@ connections with them and thereby increases the overall network's resilience.
 
 You should run most of your sentries as "full-duplex" nodes.
 
-Please keep in mind to set your number pf maximum inbound peers in the config
+Please keep in mind to set your number of maximum inbound peers in the config
 file to an appropriate value to get a better view of the network.
 
 Private nodes
@@ -238,7 +238,7 @@ basically build a *proxy* layer between this network and the public internet / c
 *Sentry* nodes are full cosmos nodes whose only task it is to relay messages and blocks to the validator nodes.
 
 This is done by assigning the Sentry nodes both a public and private interface and hardcoding the
- validator nodes as persistent peers. The PEX reactor is limited in a way to not broadcast the
+validator nodes as persistent peers. The PEX reactor is limited in a way to not broadcast the
 validator nodes to the other public peers in the network.
 
 As a result no network participant will ever have a direct connection with one of our validator
