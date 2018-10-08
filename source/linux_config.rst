@@ -75,7 +75,7 @@ Make sure to use public key authentication, and only public key authentication.
 
 Have a redundant set of bastion/VPN hosts and restrict SSH access to these hosts
 (along with any other potentially dangerous services). Don't use SSH agent forwarding for
-your bastion host, instead, forward SSH sessions *through* the bastian host using  plain
+your bastion host, instead, forward SSH sessions *through* the bastion host using plain
 OpenVPN, sshuttle or a ``ProxyCommand`` ssh_config directive.
 
 If your team is large, you probably want to use something like `Teleport`_ to tie SSH authentication
@@ -324,7 +324,7 @@ images in production, for multiple reasons:
 
 Certus One uses the OpenShift/`okd`_ build system and registry for container builds.
 
-If you build your own images, try to use the same operating system base image than your host OS,
+If you build your own images, try to use the same operating system base image as your host OS,
 or at least the same operating system family (i.e. Fedora on CentOS, more recent Ubuntu releases
 on Ubuntu LTS). This makes it a lot easier for your team to debug containers since they'll be
 familiar with the operating system, and it avoids introducing additional security dependencies.
@@ -374,7 +374,7 @@ Here's some common choices:
 
 **nscd**
   nscd is a generic caching daemon not only for DNS, but any `NSS`_ names,
-  including local users and groups. It's present on most system, though seldom enabled by default.
+  including local users and groups. It's present on most systems, though seldom enabled by default.
   We do not recommend to use it, and to disable its DNS caching if you do use it for other reasons.
 
   It has very simplistic positive and negative caches, disregards the DNS TTL and many other parts
