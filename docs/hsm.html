@@ -241,6 +241,7 @@ before “// create &amp; start tendermint node”</li>
 <ol class="arabic simple" start="4">
 <li>Add import for <code class="docutils literal notranslate"><span class="pre">&quot;github.com/certusone/aiakos&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;github.com/tendermint/tendermint/crypto/ed25519&quot;</span></code>,
 <code class="docutils literal notranslate"><span class="pre">&quot;os&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;strconv&quot;</span></code> to the file’s import section.</li>
+<li>Replace <code class="docutils literal notranslate"><span class="pre">pvm.LoadOrGenFilePV(cfg.PrivValidatorFile())</span></code> with <code class="docutils literal notranslate"><span class="pre">hsm</span></code> (keep the comma at the end of the line)</li>
 <li>Run <cite>dep ensure -v</cite></li>
 <li>Build cosmos as described in the <em>README</em></li>
 <li>Install the YubiHSM <a class="reference external" href="https://www.yubico.com/products/services-software/download/yubihsm-2-libraries-and-tools/">connector</a> on the host machine</li>

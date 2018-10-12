@@ -228,11 +228,12 @@ How to setup a Cosmos validator with Aiakos YubiHSM2 support
 
 4. Add import for ``"github.com/certusone/aiakos"``, ``"github.com/tendermint/tendermint/crypto/ed25519"``, 
    ``"os"`` and ``"strconv"`` to the file's import section.
-5. Run `dep ensure -v`
-6. Build cosmos as described in the *README*
-7. Install the YubiHSM connector_ on the host machine
-8. Run the YubiHSM connector (we recommend a sytemd service unit)
-9. Update AuthKeys and generate a EdDSA signing-key on the HSM (optional)
+5. Replace ``pvm.LoadOrGenFilePV(cfg.PrivValidatorFile())`` with ``hsm`` (keep the comma at the end of the line)
+6. Run `dep ensure -v`
+7. Build cosmos as described in the *README*
+8. Install the YubiHSM connector_ on the host machine
+9. Run the YubiHSM connector (we recommend a sytemd service unit)
+10. Update AuthKeys and generate a EdDSA signing-key on the HSM (optional)
 
 Now you can run your Cosmos node with HSM support.
 
