@@ -229,7 +229,7 @@ before “// create &amp; start tendermint node”</li>
 <span class="p">}</span>
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">Getenv</span><span class="p">(</span><span class="s2">&quot;AIAKOS_IMPORT_KEY&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;TRUE&quot;</span> <span class="p">{</span>
       <span class="n">ctx</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="s2">&quot;importing private key to Aiakos because AIAKOS_IMPORT_KEY is set.&quot;</span><span class="p">)</span>
-      <span class="n">filepv</span> <span class="p">:</span><span class="o">=</span> <span class="n">privval</span><span class="o">.</span><span class="n">LoadOrGenFilePV</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">PrivValidatorFile</span><span class="p">())</span>
+      <span class="n">filepv</span> <span class="p">:</span><span class="o">=</span> <span class="n">pvm</span><span class="o">.</span><span class="n">LoadOrGenFilePV</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">PrivValidatorFile</span><span class="p">())</span>
       <span class="n">key</span> <span class="p">:</span><span class="o">=</span> <span class="n">filepv</span><span class="o">.</span><span class="n">PrivKey</span><span class="o">.</span><span class="p">(</span><span class="n">ed25519</span><span class="o">.</span><span class="n">PrivKeyEd25519</span><span class="p">)</span>
       <span class="n">err</span> <span class="o">=</span> <span class="n">hsm</span><span class="o">.</span><span class="n">ImportKey</span><span class="p">(</span><span class="n">uint16</span><span class="p">(</span><span class="n">aiakosSigningKey</span><span class="p">),</span> <span class="n">key</span><span class="p">[:</span><span class="mi">32</span><span class="p">])</span>
       <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="n">nil</span> <span class="p">{</span>
@@ -239,7 +239,8 @@ before “// create &amp; start tendermint node”</li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li>Add import for “github.com/certusone/aiakos” to the file’s import section.</li>
+<li>Add import for <code class="docutils literal notranslate"><span class="pre">&quot;github.com/certusone/aiakos&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;github.com/tendermint/tendermint/crypto/ed25519&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;os&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;strconv&quot;</span></code> to the file’s import section.</li>
 <li>Run <cite>dep ensure -v</cite></li>
 <li>Build cosmos as described in the <em>README</em></li>
 <li>Install the YubiHSM <a class="reference external" href="https://www.yubico.com/products/services-software/download/yubihsm-2-libraries-and-tools/">connector</a> on the host machine</li>

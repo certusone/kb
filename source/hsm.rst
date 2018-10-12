@@ -218,7 +218,7 @@ How to setup a Cosmos validator with Aiakos YubiHSM2 support
   }
   if os.Getenv("AIAKOS_IMPORT_KEY") == "TRUE" {
   	ctx.Logger.Info("importing private key to Aiakos because AIAKOS_IMPORT_KEY is set.")
-  	filepv := privval.LoadOrGenFilePV(cfg.PrivValidatorFile())
+  	filepv := pvm.LoadOrGenFilePV(cfg.PrivValidatorFile())
   	key := filepv.PrivKey.(ed25519.PrivKeyEd25519)
   	err = hsm.ImportKey(uint16(aiakosSigningKey), key[:32])
   	if err != nil {
@@ -226,7 +226,8 @@ How to setup a Cosmos validator with Aiakos YubiHSM2 support
   	}
   }
 
-4. Add import for "github.com/certusone/aiakos" to the file's import section.
+4. Add import for ``"github.com/certusone/aiakos"``, ``"github.com/tendermint/tendermint/crypto/ed25519"``, 
+   ``"os"`` and ``"strconv"`` to the file's import section.
 5. Run `dep ensure -v`
 6. Build cosmos as described in the *README*
 7. Install the YubiHSM connector_ on the host machine
