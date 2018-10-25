@@ -21,14 +21,15 @@ for new validators to get started, and to provide input to other teams. We belie
 collaboration and openness strongly benefits the overall ecosystem - the more well-run
 validators there are, the more resilient will the network be.
 
-While this document's focus is running a Tendermint/Cosmos validator, much of its content is
+While this document's focus is running blockchain validators, much of its content is
 applicable to operating any highly available, distributed service.
 
 While it's hard to provide an implementation that fits all use cases, we try to provide
 reference implementations which implement our guidelines.
 
 This guide assumes practical Linux systems administration experience and at least basic knowledge
-of the Tendermint and Cosmos architecture.
+of the blockchain you're validating on (we recommend reading at least their whitepaper).
+For Cosmos, this includes both Tendermint and the Cosmos SDK.
 
 Numerous books have been written about each of the topics in this knowledge base - keep in mind
 that a knowledge base like ours is only ever a starting point and a guide, not an exhaustive
