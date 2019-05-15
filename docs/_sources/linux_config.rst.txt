@@ -120,7 +120,7 @@ detailing impact, workarounds and available patches.
 Red Hat's support is top notch (once you get past the first level), and has direct access to Red
 Hat's engineers. Needless to say, this is very valuable.
 
-Licensing is a hassle, but we recommend buying RHEL support if you can affort it - at least for
+Licensing is a hassle, but we recommend buying RHEL support if you can afford it - at least for
 your critical hosts (no, we're not getting any sales commissions ;-)).
 
 `CentOS`_ is the community edition of RHEL. It used to be a separate project, but has since been

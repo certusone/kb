@@ -13,6 +13,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Monitoring, Alerting and Instrumentation" href="monitoring.html" />
@@ -52,6 +53,8 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="validator-operations-guide">
@@ -68,12 +71,13 @@ own validator architecture.</p>
 for new validators to get started, and to provide input to other teams. We believe that
 collaboration and openness strongly benefits the overall ecosystem - the more well-run
 validators there are, the more resilient will the network be.</p>
-<p>While this document’s focus is running a Tendermint/Cosmos validator, much of its content is
+<p>While this document’s focus is running blockchain validators, much of its content is
 applicable to operating any highly available, distributed service.</p>
 <p>While it’s hard to provide an implementation that fits all use cases, we try to provide
 reference implementations which implement our guidelines.</p>
 <p>This guide assumes practical Linux systems administration experience and at least basic knowledge
-of the Tendermint and Cosmos architecture.</p>
+of the blockchain you’re validating on (we recommend reading at least their whitepaper).
+For Cosmos, this includes both Tendermint and the Cosmos SDK.</p>
 <p>Numerous books have been written about each of the topics in this knowledge base - keep in mind
 that a knowledge base like ours is only ever a starting point and a guide, not an exhaustive
 treatment of any of the topics we’re discussing. We took a look at our bookshelves (and e-readers,
@@ -162,6 +166,7 @@ GitHub issues for discussion as well as bug reports).</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
@@ -234,8 +239,8 @@ GitHub issues for discussion as well as bug reports).</p>
       &copy;2018, Certus One GmbH.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.5</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/index.rst.txt"

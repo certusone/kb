@@ -45,18 +45,17 @@ This is the exact scenario we want to prevent with PBFT-like consensus systems.
 How Cosmos prevents forks
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now that we know the 2 reasons that cause forks:
+Now that we know the reason that causes forks:
 
-- Conflicting proposals by the same validator
 - Conflicting votes by the same validator
 
-Both can be summarized as **double signing**. In order to create
-two conflicting proposals/votes, a validator needs to sign two consensus messages
+It can be summarized as **double signing**. In order to create
+two conflicting votes, a validator needs to sign two consensus messages
 for the same HRS_ pair with its key.
 
 Tendermint allows other validators to record evidence of byzantine behaviour in blocks. Cosmos
 makes use of this features and slashes validators that double sign. At the moment, the slashing
-rate is set to 20% of all bonded Atoms, which is very substantial amount.
+rate is set to 5% of all bonded Atoms, which is very substantial amount.
 
 This strict slashing condition makes it extremely important for validators to avoid double
 signing in order to ensure network security and prevent being slashed.
