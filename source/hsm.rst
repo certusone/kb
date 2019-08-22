@@ -275,7 +275,7 @@ The HSM runs from a USB port. We recommend you to use an internal USB port
 for better protection against accidental damage as well as physical security considerations.
 
 YubiHSM2 Installation with cosmos-sdk v0.34.7 (cosmoshub-2) on MacOS (Mac Mini)
-~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 reset YubiHSM Key:
 
@@ -329,7 +329,7 @@ set tmkms.toml in ~/.tmkms dir:
 refer to `tmkms.toml.example <https://github.com/tendermint/kms/blob/master/tmkms.toml.example>`_ if you want (version above should be okay):
 
 Verifying YubiHSM support was included in a build
-~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 switch to ~/.tmkms dir (with tmkms.toml inside):
 
@@ -417,6 +417,7 @@ start yubihsm-connector:
   yubihsm-connetor -d
 
 ---
+
 (maybe in another Terminal):
 
 ::
@@ -431,6 +432,7 @@ start yubihsm-connector:
 
 
 (do not forget to close any session with ``session close 0`` )
+
 ---
 
 Set Path Environments with:
