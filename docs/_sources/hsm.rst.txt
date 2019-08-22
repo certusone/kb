@@ -274,28 +274,6 @@ It is quite affordable and is among the (very) few HSMs which supports EdDSA.
 The HSM runs from a USB port. We recommend you to use an internal USB port
 for better protection against accidental damage as well as physical security considerations.
 
-YubiHSM2 Installation with cosmos-sdk v0.34.7 (cosmoshub-2) on MacOS (Mac Mini)
-~~~~~~~~
-
-reset YubiHSM Key:
-
-::
-  plug it in and press immediately the ring in direction to the led and hold it for 10 sec (especially when you think there's no button;))
-
-Install Software and set environment(set Path vars if you want):
-
-::
-  package yubihsm2-sdk-2019-03-darwin-amd64.tar.gz: Version 2.0.0 (is inside)
-
-  /Users/(bl***)/yubihsm2-sdk/bin/.yubihsm-connector -d
-
-Install Rust:
-
-::
-  curl https://sh.rustup.rs -sSf | sh
-
-  rustup default 1.37.0
-
 .. [#HSM] Hardware Security Module
 .. [#view] state of the blockchain, transactions and application
 .. [#conflicting] containing different transactions, e.g. double-spending
