@@ -416,6 +416,23 @@ start yubihsm-connector:
 
   yubihsm-connetor -d
 
+---
+(maybe in another Terminal):
+
+::
+
+  yubihsm-shell
+
+::
+
+  yubihsm> connect
+  Session keepalive set up to run every 15 seconds
+  yubihsm>
+
+
+(do not forget to close any session with ``session close 0`` )
+---
+
 Set Path Environments with:
 
 ::
