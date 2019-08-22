@@ -281,7 +281,7 @@ reset YubiHSM Key:
 
 ::
 
-  plug it in and press immediately the ring in direction to the led and hold it for 10 sec (especially when you think there's no button;))
+  insert the yubihsm and press the ring directly in the direction of the led and hold it for 10 seconds (especially when you think there's no button;))
 
 Install `Software <https://developers.yubico.com/YubiHSM2/Releases/>`_ and set environment(set PATH vars if you want):
 
