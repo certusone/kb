@@ -274,6 +274,203 @@ It is quite affordable and is among the (very) few HSMs which supports EdDSA.
 The HSM runs from a USB port. We recommend you to use an internal USB port
 for better protection against accidental damage as well as physical security considerations.
 
+YubiHSM2 Installation with cosmos-sdk v0.34.7 (cosmoshub-2) on MacOS (Mac Mini)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*by* `MarcelMWS <https://github.com/MarcelMWS>`_
+
+reset YubiHSM Key:
+
+::
+
+  insert the yubihsm and press the ring directly in the direction of the led and hold it for 10 seconds (especially when you think there's no button;))
+
+Install `Software <https://developers.yubico.com/YubiHSM2/Releases/>`_ and set environment(set PATH vars if you want):
+
+::
+
+  package yubihsm2-sdk-2019-03-darwin-amd64.tar.gz: Version 2.0.0 (is inside)
+
+  /Users/(***)/yubihsm2-sdk/bin/.yubihsm-connector -d
+
+Install Rust:
+
+::
+
+  curl https://sh.rustup.rs -sSf | sh
+
+  rustup default 1.37.0
+
+Install:
+
+- C compiler: e.g. gcc, clang
+- pkg-config
+- libusb (1.0+). Install instructions for common platforms:
+  - macOS (Homebrew): ``brew install libusb``
+
+NOTE (x86_64 only): Configure ``RUSTFLAGS`` environment variable:
+``export RUSTFLAGS=-Ctarget-feature=+aes,+ssse3``
+
+Install tmkms version: **tmkms 0.4.0**
+
+::
+
+  git clone https://github.com/tendermint/kms.git && cd kms
+
+  cargo install tmkms --features=yubihsm --version=0.4.0
+
+
+set tmkms.toml in ~/.tmkms dir:
+
+::
+
+  [[providers.yubihsm]]
+   adapter = { type = "usb" }
+   auth = { key = 1, password = "evil cat ... " }
+
+refer to `tmkms.toml.example <https://github.com/tendermint/kms/blob/master/tmkms.toml.example>`_ if you want (version above should be okay):
+
+Verifying YubiHSM support was included in a build
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+switch to ~/.tmkms dir (with tmkms.toml inside):
+
+Run the following subcommand of the resulting tmkms executable to ensure
+that YubiHSM 2 support was compiled-in successfully:
+
+::
+
+  $ tmkms yubihsm help                                                                           127 ↵
+  tmkms 0.4.0
+  Tony Arcieri <tony@iqlusion.io>, Ismail Khoffi <Ismail.Khoffi@gmail.com>
+  Tendermint Key Management System
+
+  USAGE:
+    tmkms <SUBCOMMAND>
+
+  FLAGS:
+    -h, --help     Prints help information
+    -V, --version  Prints version information
+
+  SUBCOMMANDS:
+    detect  detect all YubiHSM2 devices connected via USB
+    help    show help for the 'yubihsm' subcommand
+    keys    key management subcommands
+    setup   initial device setup and configuration
+    test    perform a signing test
+
+Set environment:
+
+::
+
+  **-Mac-mini:.tmkms ***$ tmkms yubihsm setup
+  This process will *ERASE* the configured YubiHSM2 and reinitialize it:
+
+  - YubiHSM serial: *****
+
+  Authentication keys with the following IDs and passwords will be created:
+
+  - key 0x0001: admin:
+
+      evil cat ***
+
+  - authkey 0x0002 [operator]:  kms-operator-password-***
+  - authkey 0x0003 [auditor]:   kms-auditor-password-***
+  - authkey 0x0004 [validator]: kms-validator-password-***
+  - wrapkey 0x0001 [primary]:   ***
+
+  *** Are you SURE you want erase and reinitialize this HSM? (y/N): y
+  [WARN] factory resetting HSM device! all data will be lost!
+  [INFO] waiting for device reset to complete
+  [INFO] installed temporary setup authentication key into slot ***
+  [WARN] deleting default authentication key from slot 1
+  [INFO] installing role: admin:
+  [INFO] installing role: operator:
+  [INFO] installing role: auditor:
+  [INFO] installing role: validator:
+  [INFO] installing wrap key: primary:2
+  [INFO] storing provisioning report in opaque object ***
+  [WARN] deleting temporary setup authentication key from slot ***
+       Success reinitialized YubiHSM (serial: ***)
+
+::
+
+  ***-Mac-mini:.tmkms ***$ tmkms yubihsm keys generate 1
+    Generated key #1: cosmosvalconspub1***
+
+::
+
+  tmkms yubihsm keys generate 2
+    Generated key #2: cosmosvalconspub1***
+
+::
+
+  tmkms yubihsm keys list
+  Listing keys in YubiHSM #***:
+  - \#1: cosmosvalconspub1
+  - \#2: cosmosvalconspub1
+
+save std_out output above somewhere!!!
+
+start yubihsm-connector:
+
+::
+
+  yubihsm-connetor -d
+
+---
+
+(maybe in another Terminal):
+
+::
+
+  yubihsm-shell
+
+::
+
+  yubihsm> connect
+  Session keepalive set up to run every 15 seconds
+  yubihsm>
+
+
+(do not forget to close any session with ``session close 0`` )
+
+---
+
+Set Path Environments with:
+
+::
+
+  export AIAKOS_URL="localhost:12345"
+  export AIAKOS_AUTH_KEY="1"
+  export AIAKOS_AUTH_KEY_PASSWORD="evil cat ***"
+  export AIAKOS_SIGNING_KEY="2"
+  export AIAKOS_IMPORT_KEY="FALSE"
+
+  ulimit -n 4096
+
+
+Change gaiad to custom gaiad (hsm-version)(as described above) located in:
+
+::
+
+  /Users/***/go/bin/gaiad
+
+gaiad start (pay attention if you setup a service (launchctl, systemd, ... to load env vars!!!))
+
+(restore Backup in v0.34.7, if wrong app header hash error)
+
+soft stop gaiad with(not with ctrl+c!):
+
+::
+
+  ps -ax | grep gaiad
+
+read ``pid`` (e.x. 5842)
+
+::
+
+  kill -s 3 <pid> (5842)
+
 .. [#HSM] Hardware Security Module
 .. [#view] state of the blockchain, transactions and application
 .. [#conflicting] containing different transactions, e.g. double-spending
