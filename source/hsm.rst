@@ -429,7 +429,7 @@ Set Path Environments with:
   ulimit -n 4096
 
 
-Change gaiad to custom gaiad (hsm-version) located in:
+Change gaiad to custom gaiad (hsm-version)(as described above) located in:
 
 ::
 
