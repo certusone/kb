@@ -398,6 +398,11 @@ Set environment:
 
 ::
 
+  tmkms yubihsm keys generate 2
+    Generated key #2: cosmosvalconspub1***
+
+::
+
   tmkms yubihsm keys list
   Listing keys in YubiHSM #***:
   - \#1: cosmosvalconspub1
