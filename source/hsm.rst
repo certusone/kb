@@ -445,7 +445,7 @@ soft stop gaiad with(not with ctrl+c!):
 
   ps -ax | grep gaiad
 
-read ``pid``(e.x. 5842)
+read ``pid`` (e.x. 5842)
 
 ::
 
