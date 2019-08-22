@@ -276,6 +276,7 @@ for better protection against accidental damage as well as physical security con
 
 YubiHSM2 Installation with cosmos-sdk v0.34.7 (cosmoshub-2) on MacOS (Mac Mini)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*by* `MarcelMWS <https://github.com/MarcelMWS>`_
 
 reset YubiHSM Key:
 
